@@ -109,12 +109,12 @@ export default function MenuScreen() {
             return <TransaccionesGastos />;
 
         // Graficas
-        case 'GraficasSemana':
-            return <GraficasSemana />;
-        case 'GraficasMes':
-            return <GraficasMes />;
-        case 'GraficasSeisMeses':
-            return <GraficasSeisMeses />;
+      //  case 'GraficasSemana':
+            //return <GraficasSemana />;
+       // case 'GraficasMes':
+           // return <GraficasMes />;
+        //case 'GraficasSeisMeses':
+          //  return <GraficasSeisMeses />;
 
         // Presupuestos
         case 'PresupuestosEditar':
@@ -228,7 +228,7 @@ export default function MenuScreen() {
                             <TouchableOpacity style={styles.button} onPress={() => setScreen('TransaccionesGastos')}>
                                 <Text style={styles.buttonText}>Transacciones (Gastos)</Text>
                             </TouchableOpacity>
-
+{/*
                             <Text style={styles.grupoTitulo}>Gráficas</Text>
                             <TouchableOpacity style={styles.button} onPress={() => setScreen('GraficasSemana')}>
                                 <Text style={styles.buttonText}>Gráficas (Semana)</Text>
@@ -239,7 +239,7 @@ export default function MenuScreen() {
                             <TouchableOpacity style={styles.button} onPress={() => setScreen('GraficasSeisMeses')}>
                                 <Text style={styles.buttonText}>Gráficas (6 Meses)</Text>
                             </TouchableOpacity>
-
+*/}
                             <Text style={styles.grupoTitulo}>Presupuestos</Text>
                             <TouchableOpacity style={styles.button} onPress={() => setScreen('PresupuestosAgregar')}>
                                 <Text style={styles.buttonText}>Presupuestos (Agregar)</Text>
