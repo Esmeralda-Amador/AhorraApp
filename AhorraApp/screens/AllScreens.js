@@ -19,7 +19,7 @@ import EditarPerfil from './EditarPerfil';
 
 // Autenticación
 import OlvidarContrasena from './OlvidarContrasena';
-import CerrarSesion from './CerrarSesion';
+import CerrandoSesion from './CerrandoSesion';
 
 // Transacciones
 import TransaccionesEditar from './TransaccionesEditar';
@@ -91,8 +91,8 @@ export default function MenuScreen() {
         // Autenticación
         case 'OlvidarContrasena':
             return <OlvidarContrasena />;
-        case 'CerrarSesion':
-            return <CerrarSesion />;
+        case 'CerrandoSesion':
+            return <Cerrando Sesion />;
 
         // Transacciones
         case 'TransaccionesEditar':
@@ -205,7 +205,7 @@ export default function MenuScreen() {
                             <TouchableOpacity style={styles.button} onPress={() => setScreen('OlvidarContrasena')}>
                                 <Text style={styles.buttonText}>Olvidar Contraseña</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity style={styles.button} onPress={() => setScreen('CerrarSesion')}>
+                            <TouchableOpacity style={styles.button} onPress={() => setScreen('Cerrando Sesion')}>
                                 <Text style={styles.buttonText}>Cerrar Sesión</Text>
                             </TouchableOpacity>
 
