@@ -1,4 +1,4 @@
-import { Text, StyleSheet, View, Button,SafeAreaView,StatusBar,Platform,ScrollView,TouchableOpacity } from 'react-native'
+import { Text, StyleSheet, View, Button,TouchableOpacity,SafeAreaView,StatusBar,ScrollView,Platform } from 'react-native'
 import React, { useState } from 'react'
 import Configuracion from './Configuracion';
 import InicioSesion from './InicioSesion';
