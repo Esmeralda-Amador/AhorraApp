@@ -1,9 +1,8 @@
-
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, SectionList, StyleSheet, Button, TextInput, SafeAreaView, StatusBar, Platform } from 'react-native';
-import { Feather } from "@expo/vector-icons"
+import { View, Text, TouchableOpacity, SectionList, StyleSheet, Button, TextInput, SafeAreaView, StatusBar, Platform, Alert } from 'react-native';
+import { Feather } from "@expo/vector-icons";
 
-export default function Gestion_de_transaccioness ({ setScreen }) {
+export default function Gestion_de_transaccioness() {
   const [filtro, setFiltro] = useState('Todos');
   const [searchText, setSearchText] = useState('');
 
@@ -42,6 +41,19 @@ export default function Gestion_de_transaccioness ({ setScreen }) {
     }));
   };
 
+  const handleEditar = (categoria) => {
+    Alert.alert("Editar", `Editar transacción de: ${categoria}`);
+  };
+
+  const handleEliminar = (categoria) => {
+    Alert.alert("Eliminar", `¿Eliminar transacción de: ${categoria}?`);
+  };
+
+  // Función para manejar la acción de agregar transacción
+  const handleAgregar = () => {
+    Alert.alert("Agregar", "Ir a la pantalla de añadir nueva transacción.");
+  };
+
   const renderItem = ({ item }) => (
     <View style={styles.item}>
       <View style={styles.iconoCategoria}>
@@ -60,9 +72,9 @@ export default function Gestion_de_transaccioness ({ setScreen }) {
       </View>
 
       <View style={styles.contBotonesItem}>
-        <Button color='green' title='Edit' onPress={() => setScreen('graficas')} />
+        <Button color='green' title='Edit' onPress={() => handleEditar(item.categoria)} />
         <View style={{width: 10}}/>
-        <Button color='#971108' title='Elim' onPress={() => setScreen('graficas')} />
+        <Button color='#971108' title='Elim' onPress={() => handleEliminar(item.categoria)} />
       </View>
     </View>
   );
@@ -75,6 +87,7 @@ export default function Gestion_de_transaccioness ({ setScreen }) {
         <TouchableOpacity>
           <Feather name="menu" size={24} color="#33604E" />
         </TouchableOpacity>
+
         <View style={styles.searchBar}>
           <Feather name="search" size={18} color="#999" />
           <TextInput 
@@ -85,6 +98,7 @@ export default function Gestion_de_transaccioness ({ setScreen }) {
             onChangeText={setSearchText}
           />
         </View>
+
         <TouchableOpacity>
           <Feather name="bell" size={24} color="#33604E" />
         </TouchableOpacity>
@@ -105,6 +119,12 @@ export default function Gestion_de_transaccioness ({ setScreen }) {
           ))}
         </View>
 
+        {/* Nuevo Botón de Agregar Transacción debajo de las pestañas */}
+        <TouchableOpacity style={styles.addButton} onPress={handleAgregar}>
+            <Feather name="plus-circle" size={18} color="#FFFFFF" />
+            <Text style={styles.addButtonText}>Agregar Transacción</Text>
+        </TouchableOpacity>
+        
         <SectionList
           style={styles.lista}
           sections={prepararDatos()}
@@ -195,6 +215,28 @@ const styles = StyleSheet.create({
   tabTextoActivo: {
     color: '#ffffff',
   },
+  // Estilos para el nuevo botón de Agregar Transacción
+  addButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#33604E', // Un verde que resalta para la acción positiva
+    borderRadius: 8,
+    paddingVertical: 12,
+    marginBottom: 15,
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 3,
+    elevation: 4,
+    gap: 8,
+  },
+  addButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  // Fin de estilos del botón
   lista: {
     marginTop: 10,
     flex: 1,
