@@ -77,7 +77,7 @@ export default function Notificaciones () {
   );
 };
 
-const styles = StyleSheet.create({
+const style = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#FFFFFF",
@@ -183,3 +183,63 @@ const styles = StyleSheet.create({
     fontWeight: "400",
   },
 });
+import React from 'react';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
+
+export default function Notificaciones({ navigation }) {
+  const notifications = [
+    { id: 1, icon: '➡️', text: 'Has ingresado a Ahorra+ App.', meta: 'Xiaomi X3 · 27/09/2025' },
+    { id: 2, icon: '🛠️', text: 'Termina de configurar tu perfil.' },
+    { id: 3, icon: '⚠️', text: 'Has alcanzado el límite de presupuesto de salidas.' },
+    { id: 4, icon: '➡️', text: 'Has salido de Ahorra+ App.' },
+  ];
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Notificaciones</Text>
+
+      <ScrollView style={{ flex: 1 }}>
+        {notifications.map((n) => (
+          <View key={n.id} style={styles.card}>
+            <Text style={styles.icon}>{n.icon}</Text>
+            <View style={{ flex: 1, marginLeft: 10 }}>
+              <Text style={styles.cardTitle}>{n.text}</Text>
+              {n.meta && <Text style={styles.meta}>{n.meta}</Text>}
+            </View>
+          </View>
+        ))}
+      </ScrollView>
+
+      <TouchableOpacity
+        onPress={() => navigation.navigate('Budgets')}
+        style={styles.bottomNav}>
+        <Text style={styles.bottomText}>← Volver a Presupuestos</Text>
+      </TouchableOpacity>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: '#f1f1f1', padding: 20 },
+  title: { fontSize: 22, fontWeight: 'bold', marginBottom: 15 },
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 12,
+    marginBottom: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  icon: { fontSize: 24 },
+  cardTitle: { fontWeight: '700', fontSize: 15, marginBottom: 3 },
+  meta: { color: '#777', fontSize: 12 },
+  bottomNav: {
+    backgroundColor: '#fff',
+    padding: 16,
+    alignItems: 'center',
+    borderRadius: 10,
+    marginTop: 10,
+  },
+  bottomText: { color: '#2b6b56', fontWeight: '700' },
+});
+
