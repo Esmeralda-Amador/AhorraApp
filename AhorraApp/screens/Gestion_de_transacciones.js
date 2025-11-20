@@ -115,11 +115,35 @@ export default function Gestion_de_transaccioness ({ setScreen }) {
           )}
         />
       </View>
+      <View>
+        <TouchableOpacity style={styles.fab} onPress={()=> setScreen('TransaccionesAgregar')}>
+        <Text style={styles.fabtext} >+</Text>
+      </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  fab:{
+    position: 'absolute',
+    bottom:20,
+    right: 20,
+    backgroundColor: '#21f364ff',
+    width: 60,
+    height: 60,
+    borderRadius:30,
+    alignItems: 'center',
+    justifyContent: 'center',
+
+  },
+  fabtext:{
+    color: 'white',
+    fontSize: 70,
+    lineHeight: 38,
+    fontweight: 'bold',
+    textAlign: 'center',
+  },
   container: {
     flex: 1,
     backgroundColor: "#FFFFFF",
