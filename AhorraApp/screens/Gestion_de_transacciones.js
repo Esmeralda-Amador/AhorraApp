@@ -117,7 +117,7 @@ export default function Gestion_de_transaccioness ({ setScreen }) {
       </View>
       <View>
         <TouchableOpacity style={styles.fab} onPress={()=> setScreen('TransaccionesAgregar')}>
-        <Text style={styles.fabtext} >+</Text>
+        <Text style={styles.fabtext} >+++</Text>
       </TouchableOpacity>
       </View>
     </SafeAreaView>
