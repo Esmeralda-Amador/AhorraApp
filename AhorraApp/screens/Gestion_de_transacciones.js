@@ -2,8 +2,10 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, SectionList, StyleSheet, Button, TextInput, SafeAreaView, StatusBar, Platform } from 'react-native';
 import { Feather } from "@expo/vector-icons"
+import { transaccionesstack } from './AllScreens';
 
-export default function Gestion_de_transaccioness ({ setScreen }) {
+
+export default function Gestion_de_transaccioness ({ navigation }) {
   const [filtro, setFiltro] = useState('Todos');
   const [searchText, setSearchText] = useState('');
 
@@ -60,9 +62,9 @@ export default function Gestion_de_transaccioness ({ setScreen }) {
       </View>
 
       <View style={styles.contBotonesItem}>
-        <Button color='green' title='Edit' onPress={() => setScreen('graficas')} />
+        <Button color='green' title='Edit' onPress={() => navigation.navigate('TransaccionesEditar', {item})} />
         <View style={{width: 10}}/>
-        <Button color='#971108' title='Elim' onPress={() => setScreen('graficas')} />
+        <Button color='#971108' title='Elim' onPress={() => navigation.navigate('TransaccionesEliminar', {item})} />
       </View>
     </View>
   );
@@ -116,8 +118,8 @@ export default function Gestion_de_transaccioness ({ setScreen }) {
         />
       </View>
       <View>
-        <TouchableOpacity style={styles.fab} onPress={()=> setScreen('TransaccionesAgregar')}>
-        <Text style={styles.fabtext} >+++</Text>
+        <TouchableOpacity style={styles.fab} onPress={()=> navigation.navigate('TransaccionesAgregar')}>
+        <Text style={styles.fabtext} >+</Text>
       </TouchableOpacity>
       </View>
     </SafeAreaView>
