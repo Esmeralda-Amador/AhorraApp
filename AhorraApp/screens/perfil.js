@@ -1,30 +1,23 @@
-// Importación de componentes principales y librería de íconos
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, SafeAreaView, ScrollView, StatusBar } from "react-native"
-import { Feather } from "@expo/vector-icons"
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, SafeAreaView, ScrollView, StatusBar, Dimensions } from "react-native";
+import { Feather } from "@expo/vector-icons";
 
 export default function Perfil() {
+  const screenWidth = Dimensions.get("window").width;
+
   return (
     <SafeAreaView style={styles.container}>
-      {/* Barra de estado transparente */}
       <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
 
-      {/* Scroll para desplazar todo el contenido */}
       <ScrollView style={styles.scrollView}>
-        
-        {/* Encabezado con menú, buscador, campana y ajustes */}
+        {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity>
             <Feather name="menu" size={24} color="#33604E" />
           </TouchableOpacity>
 
-          {/* Barra de búsqueda */}
           <View style={styles.searchBar}>
             <Feather name="search" size={18} color="#999" />
-            <TextInput
-              placeholder="Buscar"
-              style={styles.searchInput}
-              placeholderTextColor="#999"
-            />
+            <TextInput placeholder="Buscar" style={styles.searchInput} placeholderTextColor="#999" />
           </View>
 
           <TouchableOpacity>
@@ -36,10 +29,9 @@ export default function Perfil() {
           </TouchableOpacity>
         </View>
 
-        {/* Título principal de la pantalla */}
         <Text style={styles.pageTitle}>Mi Perfil</Text>
 
-        {/* Cuadro con información del usuario */}
+        {/* Información del usuario */}
         <View style={styles.cuadro}>
           <View style={styles.profileIconContainer}>
             <Feather name="user" size={40} color="#33604E" />
@@ -48,7 +40,7 @@ export default function Perfil() {
           <Text style={styles.emailText}>dannaamadore@gmail.com</Text>
         </View>
 
-        {/* Opciones principales del perfil */}
+        {/* Opciones */}
         <View style={styles.cuadro}>
           <TouchableOpacity style={styles.botones}>
             <Feather name="user" size={24} color="#33604E" style={styles.icon} />
@@ -66,7 +58,7 @@ export default function Perfil() {
           </TouchableOpacity>
         </View>
 
-        {/* Más configuraciones */}
+        {/* Más opciones */}
         <View style={styles.cuadro}>
           <TouchableOpacity style={styles.botones}>
             <Feather name="settings" size={24} color="#33604E" style={styles.icon} />
@@ -85,7 +77,7 @@ export default function Perfil() {
         </View>
       </ScrollView>
 
-      {/* Barra de navegación inferior */}
+      {/* Bottom navigation */}
       <View style={styles.bottomNav}>
         <TouchableOpacity style={styles.navItem}>
           <Feather name="home" size={24} color="#999" />
@@ -103,18 +95,12 @@ export default function Perfil() {
         </TouchableOpacity>
       </View>
     </SafeAreaView>
-  )
+  );
 }
 
-// Estilos visuales del perfil
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#E7E7E7",
-  },
-  scrollView: {
-    flex: 1,
-  },
+  container: { flex: 1, backgroundColor: "#E7E7E7" },
+  scrollView: { flex: 1 },
   header: {
     flexDirection: "row",
     alignItems: "center",
@@ -122,7 +108,7 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     backgroundColor: "#FFFFFF",
     gap: 12,
-    marginTop: StatusBar.currentHeight || 0, // Ajuste para el StatusBar translúcido
+    marginTop: StatusBar.currentHeight || 0,
   },
   searchBar: {
     flex: 1,
@@ -131,21 +117,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#F5F5F5",
     borderRadius: 8,
     paddingHorizontal: 12,
-    paddingVertical: 8,
     gap: 8,
   },
-  searchInput: {
-    flex: 1,
-    fontSize: 14,
-    color: "#333",
-  },
-  pageTitle: {
-    fontSize: 24,
-    fontWeight: "bold",
-    textAlign: "center",
-    marginVertical: 20,
-    color: "#333",
-  },
+  searchInput: { flex: 1, fontSize: 14, color: "#333" },
+  pageTitle: { fontSize: 24, fontWeight: "bold", textAlign: "center", marginVertical: 20, color: "#333" },
   profileIconContainer: {
     width: 80,
     height: 80,
@@ -157,16 +132,8 @@ const styles = StyleSheet.create({
     borderColor: "#33604E",
     marginBottom: 12,
   },
-  emailText: {
-    fontSize: 14,
-    color: "#666",
-    marginTop: 4,
-  },
-  texto: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#333",
-  },
+  emailText: { fontSize: 14, color: "#666", marginTop: 4 },
+  texto: { fontSize: 20, fontWeight: "bold", color: "#333" },
   cuadro: {
     padding: 20,
     backgroundColor: "white",
@@ -180,21 +147,9 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     alignItems: "center",
   },
-  botones_texto: {
-    color: "#333",
-    fontWeight: "600",
-    fontSize: 15,
-  },
-  botones: {
-    flexDirection: "row",
-    alignItems: "center",
-    width: "100%",
-    marginBottom: 16,
-  },
-  icon: {
-    marginRight: 16,
-    width: 24,
-  },
+  botones_texto: { color: "#333", fontWeight: "600", fontSize: 15 },
+  botones: { flexDirection: "row", alignItems: "center", width: "100%", marginBottom: 16 },
+  icon: { marginRight: 16, width: 24 },
   bottomNav: {
     flexDirection: "row",
     backgroundColor: "#FFFFFF",
@@ -204,17 +159,7 @@ const styles = StyleSheet.create({
     borderTopColor: "#E7E7E7",
     justifyContent: "space-around",
   },
-  navItem: {
-    alignItems: "center",
-    gap: 4,
-  },
-  navLabel: {
-    fontSize: 12,
-    color: "#33604E",
-    fontWeight: "600",
-  },
-  navLabelInactive: {
-    color: "#999",
-    fontWeight: "400",
-  },
-})
+  navItem: { alignItems: "center", gap: 4 },
+  navLabel: { fontSize: 12, color: "#33604E", fontWeight: "600" },
+  navLabelInactive: { color: "#999", fontWeight: "400" },
+});

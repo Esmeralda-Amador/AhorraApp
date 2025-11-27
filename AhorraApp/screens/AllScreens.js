@@ -11,10 +11,10 @@ import Graficas from './Graficas';
 import MenuDespegable from './MenuDespegable';
 import Metas from './metas';
 import Notificaciones from './Notificaciones';
-import Perfil from './Perfil';
+import Perfil from './perfil';
 import Soporte from './soporte';
 import PanelPrincipal from './PanelPrincipal';
-import Presupuestos_Mensuales from './Presupuestos_Mensuales';
+import Presupuestos_Mensuales from './Presupuestos_mensuales';
 import EditarPerfil from './EditarPerfil';
 
 // Autenticación

@@ -1,16 +1,69 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { 
-  View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, SafeAreaView, ScrollView, StatusBar, Platform 
+  View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, SafeAreaView, ScrollView, StatusBar, Platform, ActivityIndicator 
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import { PresupuestoController } from '../controllers/PresupuestoController';
+
+const controllerPresupuesto = new PresupuestoController();
 
 export default function PresupuestosAgregar() {
 
-  const [categoria, setCategoria] = useState('');
+  const [categoria, setCategoria] = useState([]);
   const [monto, setMonto] = useState('');
   const [dia, setDia] = useState('');
   const [mes, setMes] = useState('');
   const [ano, setAno] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [guardando, setGuardando] = useState(false);
+
+  // SELECT - Cargar usuarios desde la BD
+  const cargarPresupuesto = useCallback(async () => {
+    try {
+        setLoading(true);
+        const data = await controller.obtenerPresupuestos();
+        setCategoria(data);
+        console.log(`${data.length} usuarios cargados`);
+      } catch (error) {
+          Alert.alert('Error', error.message);
+      }   finally {
+          setLoading(false);
+      }
+  }, []);
+
+  // Inicializar y cargar datos
+  useEffect(() => {
+      const init = async () => {
+        await controller.initialize();
+        await cargarPresupuesto();
+      };
+
+      init();
+
+      // avisar los cambios automáticos
+      controller.addListener(cargarUsuarios);
+
+      return () => {
+        controller.removeListener(cargarUsuarios);
+      };
+
+  }, [cargarPresupuesto]);
+
+  // INSERT - Agregar nuevo usuario
+  const handleAgregar = async () => {
+    if (guardando) return;
+
+    try {
+        setGuardando(true);
+        const usuarioCreado = await controller.crearPresupuesto(nombre);
+        Alert.alert('Usuario Creado', `"${usuarioCreado.nombre}" guardado con ID: ${usuarioCreado.id}`);
+        setNombre('');
+    } catch (error) {
+        Alert.alert('Error', error.message);
+    } finally {
+        setGuardando(false);
+    } 
+  };
 
   const guardarPresupuesto = () => {
     const catLimpia = categoria.trim();
