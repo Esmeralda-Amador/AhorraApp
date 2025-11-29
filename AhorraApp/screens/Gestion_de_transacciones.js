@@ -2,10 +2,69 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, SectionList, StyleSheet, Button, TextInput, SafeAreaView, StatusBar, Platform } from 'react-native';
 import { Feather } from "@expo/vector-icons"
-import { transaccionesstack } from './AllScreens';
+import MenuDespegable from './MenuDespegable';
+import { createStackNavigator } from '@react-navigation/stack'; 
+import { NavigationContainer } from '@react-navigation/native';
+import TransaccionesAgregar from './TransaccionesAgregar';
+import TransaccionesEditar from './TransaccionesEditar';
+import TransaccionesEliminar from './TransaccionesEliminar';
+import Configuracion from './Configuracion';
+import Notificaciones from './Notificaciones';
 
+const Stack = createStackNavigator();
+function AllScreen() {
+  return (
+    <NavigationContainer>
+      <Stack.Navigator>
 
-export default function Gestion_de_transaccioness ({ navigation }) {
+        <Stack.Screen 
+          name="GestionTransacciones" 
+          component={Gestion_de_transacciones}
+          options={{ title: "Transacciones" }}
+        />
+
+        <Stack.Screen 
+          name="TransaccionesAgregar" 
+          component={TransaccionesAgregar}
+          options={{ title: "Agregar Transacción" }}
+        />
+
+        <Stack.Screen
+        name="Configuracion"
+        component={Configuracion}
+        options={{title: "settings"}}
+        />
+
+        <Stack.Screen
+        name= "Notificaciones"
+        component={Notificaciones}
+        options={{title: "bell"}}
+        />
+
+        <Stack.Screen
+        name="MenuDespegable"
+        component={MenuDespegable}
+        options={{title: "Menu"}}
+        />
+
+        <Stack.Screen 
+          name="TransaccionesEditar" 
+          component={TransaccionesEditar}
+          options={{ title: "Editar Transacción" }}
+        />
+
+        <Stack.Screen 
+          name="TransaccionesEliminar" 
+          component={TransaccionesEliminar}
+          options={{ title: "Eliminar Transacción" }}
+        />
+
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+}
+
+export function Gestion_de_transacciones ({ navigation }) {
   const [filtro, setFiltro] = useState('Todos');
   const [searchText, setSearchText] = useState('');
 
@@ -74,8 +133,8 @@ export default function Gestion_de_transaccioness ({ navigation }) {
       <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
       
       <View style={styles.header}>
-        <TouchableOpacity>
-          <Feather name="menu" size={24} color="#33604E" />
+        <TouchableOpacity  onPress={()=> navigation.navigate('MenuDespegable')}>
+          <Feather name="menu" size={24} color="#33604E"  />
         </TouchableOpacity>
         <View style={styles.searchBar}>
           <Feather name="search" size={18} color="#999" />
@@ -87,10 +146,10 @@ export default function Gestion_de_transaccioness ({ navigation }) {
             onChangeText={setSearchText}
           />
         </View>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={()=> navigation.navigate('Notificaciones')} >
           <Feather name="bell" size={24} color="#33604E" />
         </TouchableOpacity>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={()=> navigation.navigate('Configuracion')}>
           <Feather name="settings" size={24} color="#33604E" />
         </TouchableOpacity>
       </View>
@@ -247,3 +306,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
+
+
+
+export default AllScreen;
