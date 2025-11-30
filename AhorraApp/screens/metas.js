@@ -1,297 +1,216 @@
-// Importacion de hooks y componentes
-import { View, Text, TextInput, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, StatusBar, Platform } from "react-native"
-import { Feather } from "@expo/vector-icons"
+import React from 'react';
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, StatusBar, Platform, TextInput } from 'react-native';
+import { Feather } from '@expo/vector-icons';
 
-// Componente principal de la pantalla
-export default function Metas() {
+export default function Metas({ navigation }) {
   return (
     <SafeAreaView style={styles.container}>
-      {/* Barra de estado transparente */}
       <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
 
-      <ScrollView 
-        style={styles.scrollView}
-        contentContainerStyle={{ paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight + 10 : 10 }}
-      >
-        {/* Header con menú, búsqueda y notificaciones */}
-        <View style={styles.header}>
-          <TouchableOpacity>
-            <Feather name="menu" size={24} color="#33604E" />
-          </TouchableOpacity>
-
-          <View style={styles.searchBar}>
-            <Feather name="search" size={18} color="#999" />
-            <TextInput placeholder="Search" style={styles.searchInput} placeholderTextColor="#999" />
-            <Feather name="mic" size={18} color="#999" />
-          </View>
-
-          <TouchableOpacity>
-            <Feather name="bell" size={24} color="#33604E" />
-          </TouchableOpacity>
-
-          <TouchableOpacity>
-            <Feather name="settings" size={24} color="#33604E" />
-          </TouchableOpacity>
-        </View>
-
-        {/* Título de la pantalla */}
-        <View style={styles.titleContainer}>
-          <Text style={styles.title}>Mis Metas</Text>
-        </View>
-
-        {/* Botón para crear una nueva meta */}
-        <TouchableOpacity style={styles.createButton}>
-          <Feather name="plus-circle" size={20} color="#FFFFFF" />
-          <Text style={styles.createButtonText}>Crear una nueva meta</Text>
+      {/* --- HEADER IDÉNTICO AL PANEL --- */}
+      <View style={styles.header}>
+        {/* 1. Menú a la izquierda */}
+        <TouchableOpacity onPress={() => navigation.navigate('Perfil')}>
+           <Feather name="menu" size={28} color="#33604E" />
         </TouchableOpacity>
 
-        {/* Lista de metas del usuario */}
-        <View style={styles.goalsContainer}>
-          {/* Meta 1: Celular nuevo */}
-          <View style={styles.goalCard}>
-            <View style={styles.goalContent}>
-              <View style={styles.goalIconContainer}>
-                <Feather name="smartphone" size={24} color="#33604E" />
-              </View>
-
-              <View style={styles.goalInfo}>
-                <Text style={styles.goalName}>Celular nuevo</Text>
-                <Text style={styles.goalAmount}>6,000/9,000</Text>
-              </View>
-
-              <View style={styles.goalProgress}>
-                <Text style={styles.progressText}>80% logrado</Text>
-              </View>
-            </View>
-
-            <View style={styles.goalActions}>
-              <TouchableOpacity style={styles.actionButton}>
-                <Feather name="edit-2" size={18} color="#666" />
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.actionButton}>
-                <Feather name="minus-circle" size={18} color="#666" />
-              </TouchableOpacity>
-            </View>
-          </View>
-
-          {/* Meta 2: Pc nueva */}
-          <View style={styles.goalCard}>
-            <View style={styles.goalContent}>
-              <View style={styles.goalIconContainer}>
-                <Feather name="monitor" size={24} color="#33604E" />
-              </View>
-
-              <View style={styles.goalInfo}>
-                <Text style={styles.goalName}>Pc nueva</Text>
-                <Text style={styles.goalAmount}>15,000/30,000</Text>
-              </View>
-
-              <View style={styles.goalProgress}>
-                <Text style={styles.progressText}>50% logrado</Text>
-              </View>
-            </View>
-
-            <View style={styles.goalActions}>
-              <TouchableOpacity style={styles.actionButton}>
-                <Feather name="edit-2" size={18} color="#666" />
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.actionButton}>
-                <Feather name="minus-circle" size={18} color="#666" />
-              </TouchableOpacity>
-            </View>
-          </View>
-
-          {/* Meta 3: Carro */}
-          <View style={styles.goalCard}>
-            <View style={styles.goalContent}>
-              <View style={styles.goalIconContainer}>
-                <Feather name="dollar-sign" size={24} color="#33604E" />
-              </View>
-
-              <View style={styles.goalInfo}>
-                <Text style={styles.goalName}>Carro</Text>
-                <Text style={styles.goalAmount}>300,000/300,000</Text>
-              </View>
-
-              <View style={styles.goalProgress}>
-                <Text style={[styles.progressText, styles.progressComplete]}>100% logrado</Text>
-              </View>
-            </View>
-
-            <View style={styles.goalActions}>
-              <TouchableOpacity style={styles.actionButton}>
-                <Feather name="edit-2" size={18} color="#666" />
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.actionButton}>
-                <Feather name="minus-circle" size={18} color="#666" />
-              </TouchableOpacity>
-            </View>
-          </View>
+        {/* 2. Barra de Búsqueda (Con Lupa y Micrófono) */}
+        <View style={styles.searchBar}>
+          <Feather name="search" size={20} color="#999"  style={{marginRight: 8}} />
+          <TextInput
+            placeholder="Buscar por categoría..."
+            style={styles.searchInput}
+            placeholderTextColor="#999"
+          />
+          {/* AQUÍ ESTÁ EL MICRÓFONO QUE FALTABA */}
+          <Feather name="mic" size={20} color="#999"  />
         </View>
-      </ScrollView>
 
-      {/* Barra de navegación inferior */}
-      <View style={styles.bottomNav}>
-        <TouchableOpacity style={styles.navItem}>
-          <Feather name="home" size={24} color="#999" />
-          <Text style={[styles.navLabel, styles.navLabelInactive]}>Inicio</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.navItem}>
-          <Feather name="bar-chart-2" size={24} color="#999" />
-          <Text style={[styles.navLabel, styles.navLabelInactive]}>Estadísticas</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.navItem}>
-          <Feather name="dollar-sign" size={24} color="#33604E" />
-          <Text style={styles.navLabel}>Ahorros</Text>
+        {/* 3. Solo Campana a la derecha (Igual que en Panel) */}
+        <TouchableOpacity onPress={() => navigation.navigate('Notificaciones')}>
+            <Feather name="bell" size={26} color="#33604E" />
         </TouchableOpacity>
       </View>
+      {/* -------------------------------- */}
+
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        
+        <View style={styles.titleContainer}>
+            <Text style={styles.pageTitle}>Mis Metas</Text>
+        </View>
+
+        <TouchableOpacity style={styles.addButton}>
+            <Feather name="plus-circle" size={24} color="#FFF" />
+            <Text style={styles.addButtonText}>Crear una nueva meta</Text>
+        </TouchableOpacity>
+
+        {/* --- TARJETAS --- */}
+        <View style={styles.card}>
+            <View style={styles.cardRow}>
+                <View style={styles.iconBox}>
+                    <Feather name="smartphone" size={24} color="#33604E" />
+                </View>
+                <View style={styles.cardInfo}>
+                    <Text style={styles.cardTitle}>Celular nuevo</Text>
+                    <Text style={styles.cardSubtitle}>6,000/9,000</Text>
+                </View>
+                <Text style={styles.percentText}>80% logrado</Text>
+            </View>
+            <View style={styles.actionRow}>
+                <TouchableOpacity><Feather name="edit-2" size={20} color="#666" /></TouchableOpacity>
+                <TouchableOpacity><Feather name="minus-circle" size={20} color="#666" /></TouchableOpacity>
+            </View>
+        </View>
+
+        <View style={styles.card}>
+            <View style={styles.cardRow}>
+                <View style={styles.iconBox}>
+                    <Feather name="monitor" size={24} color="#33604E" />
+                </View>
+                <View style={styles.cardInfo}>
+                    <Text style={styles.cardTitle}>Pc nueva</Text>
+                    <Text style={styles.cardSubtitle}>15,000/30,000</Text>
+                </View>
+                <Text style={styles.percentText}>50% logrado</Text>
+            </View>
+            <View style={styles.actionRow}>
+                <TouchableOpacity><Feather name="edit-2" size={20} color="#666" /></TouchableOpacity>
+                <TouchableOpacity><Feather name="minus-circle" size={20} color="#666" /></TouchableOpacity>
+            </View>
+        </View>
+
+        <View style={styles.card}>
+            <View style={styles.cardRow}>
+                <View style={styles.iconBox}>
+                    <Text style={{fontSize:20, color:'#33604E', fontWeight:'bold'}}>$</Text>
+                </View>
+                <View style={styles.cardInfo}>
+                    <Text style={styles.cardTitle}>Carro</Text>
+                    <Text style={styles.cardSubtitle}>300,000/300,000</Text>
+                </View>
+                <Text style={[styles.percentText, {color: '#28a745'}]}>100% logrado</Text>
+            </View>
+            <View style={styles.actionRow}>
+                <TouchableOpacity><Feather name="edit-2" size={20} color="#666" /></TouchableOpacity>
+                <TouchableOpacity><Feather name="minus-circle" size={20} color="#666" /></TouchableOpacity>
+            </View>
+        </View>
+
+        <View style={{height: 100}} />
+      </ScrollView>
     </SafeAreaView>
-  )
+  );
 }
 
-// Estilos del componente
+const STATUS_BAR_HEIGHT = Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : 0;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#E7E7E7",
+    backgroundColor: '#F5F5F5',
   },
   scrollView: {
     flex: 1,
   },
   header: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingVertical: 15,
-    backgroundColor: "#FFFFFF",
-    gap: 12,
+    paddingTop: STATUS_BAR_HEIGHT + 20,
+    paddingBottom: 15,
+    backgroundColor: '#FFFFFF',
   },
   searchBar: {
     flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#F5F5F5",
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F5F5F5', 
     borderRadius: 8,
     paddingHorizontal: 12,
-    paddingVertical: 8,
-    gap: 8,
+    height: 45,
+    marginHorizontal: 15,
   },
   searchInput: {
     flex: 1,
     fontSize: 14,
-    color: "#333",
+    color: '#333',
+    height: '100%',
   },
   titleContainer: {
-    backgroundColor: "#FFFFFF",
-    paddingHorizontal: 20,
-    paddingVertical: 24,
-    alignItems: "center",
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "700",
-    color: "#000",
-  },
-  createButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#33604E",
-    marginHorizontal: 20,
+    alignItems: 'center',
     marginTop: 20,
-    marginBottom: 16,
-    paddingVertical: 16,
-    borderRadius: 12,
+    marginBottom: 20,
+  },
+  pageTitle: {
+    fontSize: 26,
+    fontWeight: '800',
+    color: '#000',
+  },
+  addButton: {
+    flexDirection: 'row',
+    backgroundColor: '#33604E',
+    marginHorizontal: 20,
+    paddingVertical: 14,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 25,
     gap: 8,
-  },
-  createButtonText: {
-    color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  goalsContainer: {
-    paddingHorizontal: 20,
-    gap: 12,
-    paddingBottom: 20,
-  },
-  goalCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
-    padding: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
     elevation: 2,
   },
-  goalContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 12,
+  addButtonText: {
+    color: '#FFF',
+    fontSize: 16,
+    fontWeight: '600',
   },
-  goalIconContainer: {
-    width: 48,
-    height: 48,
+  card: {
+    backgroundColor: '#FFFFFF',
+    marginHorizontal: 20,
+    marginBottom: 15,
+    borderRadius: 15,
+    padding: 20,
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+  },
+  cardRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  iconBox: {
+    width: 45,
+    height: 45,
+    backgroundColor: '#F5F9F7',
     borderRadius: 8,
-    backgroundColor: "#F5F5F5",
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 15,
   },
-  goalInfo: {
+  cardInfo: {
     flex: 1,
   },
-  goalName: {
+  cardTitle: {
     fontSize: 16,
-    fontWeight: "600",
-    color: "#000",
-    marginBottom: 4,
+    fontWeight: 'bold',
+    color: '#000',
   },
-  goalAmount: {
+  cardSubtitle: {
     fontSize: 12,
-    color: "#666",
+    color: '#666',
+    marginTop: 2,
   },
-  goalProgress: {
-    marginLeft: 8,
-  },
-  progressText: {
+  percentText: {
     fontSize: 12,
-    fontWeight: "600",
-    color: "#00BFA5",
+    fontWeight: 'bold',
+    color: '#17a2b8', 
   },
-  progressComplete: {
-    color: "#00C853",
+  actionRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: 15,
   },
-  goalActions: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    gap: 12,
-  },
-  actionButton: {
-    padding: 4,
-  },
-  bottomNav: {
-    flexDirection: "row",
-    backgroundColor: "#FFFFFF",
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderTopWidth: 1,
-    borderTopColor: "#E7E7E7",
-    justifyContent: "space-around",
-  },
-  navItem: {
-    alignItems: "center",
-    gap: 4,
-  },
-  navLabel: {
-    fontSize: 12,
-    color: "#33604E",
-    fontWeight: "600",
-  },
-  navLabelInactive: {
-    color: "#999",
-    fontWeight: "400",
-  },
-})
+});

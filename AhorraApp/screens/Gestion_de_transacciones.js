@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, SectionList, StyleSheet, Button, TextInput, SafeAreaView, StatusBar, Platform, Alert } from 'react-native';
 import { Feather } from "@expo/vector-icons";
 
-export default function Gestion_de_transaccioness() {
+export default function Gestion_de_transaccioness({ navigation }) {
   const [filtro, setFiltro] = useState('Todos');
   const [searchText, setSearchText] = useState('');
 
@@ -49,7 +49,6 @@ export default function Gestion_de_transaccioness() {
     Alert.alert("Eliminar", `¿Eliminar transacción de: ${categoria}?`);
   };
 
-  // Función para manejar la acción de agregar transacción
   const handleAgregar = () => {
     Alert.alert("Agregar", "Ir a la pantalla de añadir nueva transacción.");
   };
@@ -83,13 +82,13 @@ export default function Gestion_de_transaccioness() {
     <SafeAreaView style={styles.container}>
       <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
       
-      <View style={styles.header}>
-        <TouchableOpacity>
-          <Feather name="menu" size={24} color="#33604E" />
+     <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.navigate('Perfil')}>
+          <Feather name="menu" size={28} color="#33604E" />
         </TouchableOpacity>
 
         <View style={styles.searchBar}>
-          <Feather name="search" size={18} color="#999" />
+          <Feather name="search" size={20} color="#999" style={{marginRight: 8}} />
           <TextInput 
             placeholder="Buscar por categoría..." 
             style={styles.searchInput} 
@@ -97,13 +96,12 @@ export default function Gestion_de_transaccioness() {
             value={searchText}
             onChangeText={setSearchText}
           />
+          <Feather name="mic" size={20} color="#999" />
         </View>
 
-        <TouchableOpacity>
-          <Feather name="bell" size={24} color="#33604E" />
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Feather name="settings" size={24} color="#33604E" />
+        {/* AQUÍ ESTÁ EL CAMBIO: Borré el View con 'gap' y dejé solo la campana */}
+        <TouchableOpacity onPress={() => navigation.navigate('Notificaciones')}>
+          <Feather name="bell" size={26} color="#33604E" />
         </TouchableOpacity>
       </View>
       
@@ -119,7 +117,6 @@ export default function Gestion_de_transaccioness() {
           ))}
         </View>
 
-        {/* Nuevo Botón de Agregar Transacción debajo de las pestañas */}
         <TouchableOpacity style={styles.addButton} onPress={handleAgregar}>
             <Feather name="plus-circle" size={18} color="#FFFFFF" />
             <Text style={styles.addButtonText}>Agregar Transacción</Text>
@@ -133,25 +130,28 @@ export default function Gestion_de_transaccioness() {
           renderSectionHeader={({ section: { title } }) => (
             <Text style={styles.fechaTitulo}>{title}</Text>
           )}
+          showsVerticalScrollIndicator={false}
         />
       </View>
     </SafeAreaView>
   );
 };
 
+const STATUS_BAR_HEIGHT = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F5F5F5",
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingVertical: 15,
+    paddingTop: STATUS_BAR_HEIGHT + 20,
+    paddingBottom: 15,
     backgroundColor: "#FFFFFF",
-    gap: 12,
-    paddingTop: 15 + (Platform.OS === "android" ? StatusBar.currentHeight : 0),
   },
   searchBar: {
     flex: 1,
@@ -160,13 +160,14 @@ const styles = StyleSheet.create({
     backgroundColor: "#F5F5F5",
     borderRadius: 8,
     paddingHorizontal: 12,
-    paddingVertical: 8,
-    gap: 8,
+    height: 45,
+    marginHorizontal: 15,
   },
   searchInput: {
     flex: 1,
     fontSize: 14,
     color: "#333",
+    height: '100%',
   },
   contentContainer: {
     flex: 1,
@@ -215,12 +216,11 @@ const styles = StyleSheet.create({
   tabTextoActivo: {
     color: '#ffffff',
   },
-  // Estilos para el nuevo botón de Agregar Transacción
   addButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#33604E', // Un verde que resalta para la acción positiva
+    backgroundColor: '#33604E', 
     borderRadius: 8,
     paddingVertical: 12,
     marginBottom: 15,
@@ -236,7 +236,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-  // Fin de estilos del botón
   lista: {
     marginTop: 10,
     flex: 1,

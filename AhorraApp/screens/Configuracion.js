@@ -2,43 +2,53 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, StatusBar, Platform, Switch } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 
-export default function Configuracion () {
+export default function Configuracion({ navigation }) {
 
   const [notificaciones, setNotificaciones] = useState(true);
-  const [biometricos, setBiometricos] = useState(false);
-  const [modoOscuro, setModoOscuro] = useState(false);
 
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
-      <ScrollView style={styles.scrollView}>
-        
-        <View style={styles.header}>
-          <TouchableOpacity>
-            <Feather name="menu" size={24} color="#33604E" />
-          </TouchableOpacity>
-          <View style={styles.searchBar}>
-            <Feather name="search" size={18} color="#999" />
-            <TextInput placeholder="Buscar" style={styles.searchInput} placeholderTextColor="#999" />
-            <Feather name="mic" size={18} color="#999" />
-          </View>
-          <TouchableOpacity>
-            <Feather name="bell" size={24} color="#33604E" />
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Feather name="settings" size={24} color="#33604E" />
-          </TouchableOpacity>
+      
+      {/* --- HEADER (IGUAL A PANEL, METAS Y PERFIL) --- */}
+      <View style={styles.header}>
+        {/* Usamos flecha para volver porque es una sub-pantalla */}
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+           <Feather name="arrow-left" size={26} color="#33604E" />
+        </TouchableOpacity>
+
+        <View style={styles.searchBar}>
+          <Feather name="search" size={20} color="#999" style={{marginLeft: 5}} />
+          <TextInput 
+            placeholder="Buscar ajuste..." 
+            style={styles.searchInput} 
+            placeholderTextColor="#999" 
+          />
+          {/* Mantenemos el micrófono para consistencia con el Panel */}
+          <Feather name="mic" size={20} color="#999" style={{marginRight: 5}} />
         </View>
 
+        {/* Solo dejamos la campana, quitamos el engranaje porque YA ESTAMOS en configuración */}
+        <TouchableOpacity onPress={() => navigation.navigate('Notificaciones')}>
+           <Feather name="bell" size={26} color="#33604E" />
+        </TouchableOpacity>
+      </View>
+      {/* ----------------------------------------------- */}
+
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        
         <View style={styles.titleContainer}>
-          <Text style={styles.title}>Configuración</Text>
+          <Text style={styles.pageTitle}>Configuración</Text>
         </View>
 
         <View style={styles.listContainer}>
+          
+          {/* Tarjeta 1: Ajustes Generales */}
           <View style={styles.card}>
+            {/* Notificaciones (Switch) */}
             <View style={styles.cardRow}>
               <Feather name="bell" size={20} color="#33604E" style={styles.cardIcon} />
-              <Text style={styles.cardLabel}>Notificaciones</Text>
+              <Text style={styles.cardLabel}>Notificaciones Push</Text>
               <View style={styles.cardActionWrapper}>
                 <Switch
                   value={notificaciones}
@@ -51,133 +61,154 @@ export default function Configuracion () {
 
             <View style={styles.separator} />
             
-            <TouchableOpacity style={styles.cardRow}>
+            {/* Editar Moneda */}
+            <TouchableOpacity 
+                style={styles.cardRow}
+                onPress={() => navigation.navigate('ConfigEditarMoneda')} // Asegúrate de tener esta ruta o borra el onPress
+            >
               <Feather name="dollar-sign" size={20} color="#33604E" style={styles.cardIcon} />
-              <Text style={styles.cardLabel}>Editar moneda</Text>
+              <Text style={styles.cardLabel}>Tipo de Moneda (MXN)</Text>
               <View style={styles.cardActionWrapper}>
-                <Feather name="chevron-right" size={24} color="#999" />
+                <Feather name="chevron-right" size={24} color="#ccc" />
               </View>
             </TouchableOpacity>
 
             <View style={styles.separator} />
 
-            <TouchableOpacity style={styles.cardRow}>
+            {/* Editar Contraseña */}
+            <TouchableOpacity 
+                style={styles.cardRow}
+                onPress={() => navigation.navigate('ConfigEditarContrasena')} // Asegúrate de tener esta ruta
+            >
               <Feather name="lock" size={20} color="#33604E" style={styles.cardIcon} />
-              <Text style={styles.cardLabel}>Editar contraseña</Text>
+              <Text style={styles.cardLabel}>Cambiar contraseña</Text>
               <View style={styles.cardActionWrapper}>
-                <Feather name="chevron-right" size={24} color="#999" />
+                <Feather name="chevron-right" size={24} color="#ccc" />
               </View>
             </TouchableOpacity>
           </View>
 
+          {/* Tarjeta 2: Ayuda */}
           <View style={styles.card}>
-            <TouchableOpacity style={styles.cardRow}>
+            <TouchableOpacity 
+                style={styles.cardRow}
+                onPress={() => navigation.navigate('Soporte')}
+            >
               <Feather name="help-circle" size={20} color="#33604E" style={styles.cardIcon} />
-              <Text style={styles.cardLabel}>Soporte y Ayuda</Text>
+              <Text style={styles.cardLabel}>Centro de Ayuda</Text>
               <View style={styles.cardActionWrapper}>
-                <Feather name="chevron-right" size={24} color="#999" />
+                <Feather name="chevron-right" size={24} color="#ccc" />
               </View>
             </TouchableOpacity>
           </View>
 
-          <TouchableOpacity style={styles.logoutButton}>
+          {/* Botón Cerrar Sesión (Estilo Perfil) */}
+          <TouchableOpacity 
+            style={styles.logoutButton}
+            onPress={() => navigation.replace('InicioSesion')}
+          >
+            <Feather name="log-out" size={20} color="#FF4444" style={{marginRight: 10}} />
             <Text style={styles.logoutButtonText}>Cerrar Sesión</Text>
           </TouchableOpacity>
 
         </View>
 
-      </ScrollView>
+        {/* Espacio final */}
+        <View style={{height: 40}} />
 
-      <View style={styles.bottomNav}>
-        <TouchableOpacity style={styles.navItem}>
-          <Feather name="home" size={24} color="#33604E" />
-          <Text style={styles.navLabel}>Inicio</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
-          <Feather name="bar-chart-2" size={24} color="#999" />
-          <Text style={[styles.navLabel, styles.navLabelInactive]}>Estadísticas</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
-          <Feather name="dollar-sign" size={24} color="#999" />
-          <Text style={[styles.navLabel, styles.navLabelInactive]}>Ahorros</Text>
-        </TouchableOpacity>
-      </View>
+      </ScrollView>
+      
+      {/* SE ELIMINÓ EL BOTTOM NAV MANUAL */}
     </SafeAreaView>
   );
 };
 
+const STATUS_BAR_HEIGHT = Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : 0;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F5F5F5", // Fondo gris suave (Igual a Perfil/Metas)
   },
   scrollView: {
     flex: 1,
-    backgroundColor: "#E7E7E7",
   },
+
+  // --- HEADER ESTÁNDAR (COPIA EXACTA DE PANEL/METAS) ---
   header: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingVertical: 15,
-    backgroundColor: "#FFFFFF",
-    gap: 12,
-    paddingTop: 15 + (Platform.OS === "android" ? StatusBar.currentHeight : 0),
+    // Altura ajustada: +45 px extra sobre el status bar
+    paddingTop: STATUS_BAR_HEIGHT + 45, 
+    paddingBottom: 20, 
+    backgroundColor: '#FFFFFF',
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 4, 
   },
   searchBar: {
     flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#F5F5F5",
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    gap: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F0F2F5',
+    borderRadius: 8, // Bordes cuadrados suaves
+    paddingHorizontal: 10,
+    height: 50, 
+    marginHorizontal: 15,
   },
   searchInput: {
     flex: 1,
-    fontSize: 14,
-    color: "#333",
+    fontSize: 15,
+    color: '#333',
+    marginLeft: 10,
+    marginRight: 10,
+    height: '100%',
   },
+  // -----------------------------------------------------
+
   titleContainer: {
-    backgroundColor: "#FFFFFF",
-    paddingVertical: 40,
-    paddingHorizontal: 20,
     alignItems: "center",
+    marginTop: 20,
+    marginBottom: 10,
   },
-  title: {
-    fontSize: 32,
-    fontWeight: "700",
-    color: "#000",
+  pageTitle: {
+    fontSize: 26,
+    fontWeight: "800",
+    color: "#333",
     textAlign: "center",
   },
+  
   listContainer: {
     padding: 20,
     gap: 20,
-    paddingBottom: 40,
   },
   card: {
     backgroundColor: "#FFFFFF",
-    borderRadius: 12,
+    borderRadius: 15,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
     elevation: 2,
     overflow: 'hidden',
+    paddingVertical: 5,
   },
   cardRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 18,
-    paddingHorizontal: 16,
+    paddingVertical: 16,
+    paddingHorizontal: 20,
   },
   cardIcon: {
     marginRight: 15,
   },
   cardLabel: {
     flex: 1,
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: '500',
     color: '#333',
   },
@@ -187,41 +218,24 @@ const styles = StyleSheet.create({
   separator: {
     height: 1,
     backgroundColor: '#F0F0F0',
-    marginHorizontal: 16,
+    marginHorizontal: 20,
   },
+
+  // Botón Cerrar Sesión (Estilo Rojo del Perfil)
   logoutButton: {
-    backgroundColor: "#33604E",
-    paddingVertical: 16,
-    borderRadius: 12,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    paddingVertical: 15,
+    backgroundColor: '#FFF0F0', // Rojo muy claro
+    borderRadius: 15,
+    borderWidth: 1,
+    borderColor: '#FFCDCD',
     marginTop: 10,
   },
   logoutButtonText: {
-    color: "#FFFFFF",
+    color: "#FF4444",
     fontSize: 16,
-    fontWeight: "600",
-  },
-  bottomNav: {
-    flexDirection: "row",
-    backgroundColor: "#FFFFFF",
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderTopWidth: 1,
-    borderTopColor: "#E7E7E7",
-    justifyContent: "space-around",
-  },
-  navItem: {
-    alignItems: "center",
-    gap: 4,
-  },
-  navLabel: {
-    fontSize: 12,
-    color: "#33604E",
-    fontWeight: "600",
-  },
-  navLabelInactive: {
-    color: "#999",
-    fontWeight: "400",
+    fontWeight: "700",
   },
 });

@@ -1,40 +1,36 @@
 import React from 'react';
-import {View, Text, TextInput, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Image, StatusBar, Platform } from 'react-native';
+import { View, Text, TextInput, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Image, StatusBar, Platform } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 
 const Logo = require('../assets/AhorraApp.jpg');
 
-// Recibimos { navigation } para poder ir a otras pantallas
 export default function PanelPrincipal({ navigation }) {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
 
-      <ScrollView style={styles.scrollView}>
-        {/* Encabezado */}
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        
         <View style={styles.header}>
-            {/* Botón MENU: Lo conectamos para ir a 'MenuDespegable' o 'Perfil' */}
           <TouchableOpacity onPress={() => navigation.navigate('Perfil')}>
-            <Feather name="menu" size={24} color="#33604E" />
+            <Feather name="menu" size={28} color="#33604E" />
           </TouchableOpacity>
 
-          {/* Barra de búsqueda */}
           <View style={styles.searchBar}>
-            <Feather name="search" size={18} color="#999" />
+            <Feather name="search" size={20} color="#999" style={{marginRight: 8}} />
             <TextInput
-              placeholder="Buscar"
+              placeholder="Buscar por categoría..."
               style={styles.searchInput}
               placeholderTextColor="#999"
             />
-            <Feather name="mic" size={18} color="#999" />
+            <Feather name="mic" size={20} color="#999" />
           </View>
 
           <TouchableOpacity onPress={() => navigation.navigate('Notificaciones')}>
-            <Feather name="bell" size={24} color="#33604E" />
+            <Feather name="bell" size={26} color="#33604E" />
           </TouchableOpacity>
         </View>
 
-        {/* Saludo */}
         <View style={styles.greetingContainer}>
           <View>
             <Text style={styles.greetingText}>Hola,</Text>
@@ -43,23 +39,19 @@ export default function PanelPrincipal({ navigation }) {
           <Image source={Logo} style={styles.logoImage} />
         </View>
 
-        {/* Tarjeta del saldo */}
         <View style={styles.balanceCard}>
           <Text style={styles.balanceLabel}>Saldo Actual</Text>
           <Text style={styles.balanceAmount}>$1,852.00</Text>
         </View>
 
-        {/* Tarjeta de metas */}
         <View style={styles.goalsCard}>
-          <View style={{flexDirection:'row', justifyContent:'space-between'}}>
+          <View style={styles.goalsHeader}>
              <Text style={styles.goalsTitle}>Mis metas</Text>
-             {/* Enlace para ir a la pantalla completa de Metas */}
              <TouchableOpacity onPress={() => navigation.navigate('Metas')}>
-                <Text style={{color:'#33604E', fontWeight:'600'}}>Ver todas</Text>
+                <Text style={styles.linkText}>Ver todas</Text>
              </TouchableOpacity>
           </View>
 
-          {/* Meta 1 */}
           <View style={styles.goalItem}>
             <View style={styles.progressCircle}>
               <View style={styles.progressInner}>
@@ -72,7 +64,6 @@ export default function PanelPrincipal({ navigation }) {
             </View>
           </View>
 
-          {/* Meta 2 */}
           <View style={styles.goalItem}>
             <View style={styles.progressCircle}>
               <View style={styles.progressInner}>
@@ -86,24 +77,18 @@ export default function PanelPrincipal({ navigation }) {
           </View>
         </View>
 
-        {/* Espacio extra abajo para que no se corte con el TabBar */}
-        <View style={{height: 100}} /> 
+        <View style={{ height: 100 }} />
       </ScrollView>
-
-      {/* --- AQUÍ ELIMINÉ EL MENÚ INFERIOR MANUAL --- 
-          Porque el Tab.Navigator de App.js pondrá uno funcional automáticamente.
-      */}
-      
     </SafeAreaView>
   );
 }
 
-const STATUS_BAR_HEIGHT = Platform.OS === 'android' ? StatusBar.currentHeight || 24 : 0;
+const STATUS_BAR_HEIGHT = Platform.OS === 'android' ? StatusBar.currentHeight : 0;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#E7E7E7',
+    backgroundColor: '#F5F5F5',
   },
   scrollView: {
     flex: 1,
@@ -111,69 +96,71 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingVertical: 15,
-    paddingTop: STATUS_BAR_HEIGHT + 7,
+    paddingTop: STATUS_BAR_HEIGHT + 20,
+    paddingBottom: 15,
     backgroundColor: '#FFFFFF',
-    gap: 12,
   },
   searchBar: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#F5F5F5', 
     borderRadius: 8,
     paddingHorizontal: 12,
-    paddingVertical: 8,
-    gap: 8,
+    height: 45,
+    marginHorizontal: 15,
   },
   searchInput: {
     flex: 1,
     fontSize: 14,
     color: '#333',
+    height: '100%',
   },
   greetingContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingVertical: 20,
+    paddingVertical: 25,
   },
   greetingText: {
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: '300',
     color: '#333',
   },
   nameText: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#333',
+    fontSize: 26,
+    fontWeight: '800',
+    color: '#222',
   },
   logoImage: {
-    width: 55,
-    height: 55,
-    borderRadius: 45,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
   },
   balanceCard: {
     backgroundColor: '#FFFFFF',
     marginHorizontal: 20,
     marginBottom: 20,
     padding: 24,
-    borderRadius: 16,
+    borderRadius: 20,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
+    shadowRadius: 10,
+    elevation: 4,
   },
   balanceLabel: {
     fontSize: 14,
     color: '#666',
     marginBottom: 8,
+    fontWeight: '500',
   },
   balanceAmount: {
-    fontSize: 36,
-    fontWeight: '700',
+    fontSize: 38,
+    fontWeight: '800',
     color: '#33604E',
   },
   goalsCard: {
@@ -181,28 +168,38 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     marginBottom: 20,
     padding: 20,
-    borderRadius: 16,
+    borderRadius: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
     elevation: 3,
+  },
+  goalsHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
   },
   goalsTitle: {
     fontSize: 18,
     fontWeight: '700',
     color: '#333',
-    marginBottom: 16,
+  },
+  linkText: {
+    color: '#33604E',
+    fontWeight: '600',
+    fontSize: 14,
   },
   goalItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 16,
-    gap: 16,
+    marginBottom: 20,
+    gap: 15,
   },
   progressCircle: {
-    width: 60,
-    height: 60,
+    width: 55,
+    height: 55,
     borderRadius: 30,
     borderWidth: 4,
     borderColor: '#33604E',
@@ -214,7 +211,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   progressText: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '700',
     color: '#33604E',
   },
@@ -228,8 +225,8 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   goalProgress: {
-    fontSize: 14,
-    color: '#666',
+    fontSize: 13,
+    color: '#888',
+    fontWeight: '500',
   },
-  // Elimine los estilos de navItem, navLabel, bottomNav porque ya no se usan
 });
