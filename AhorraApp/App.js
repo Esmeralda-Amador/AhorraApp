@@ -24,12 +24,10 @@ import MenuDespegable from './screens/MenuDespegable'; // Tu nuevo archivo de me
 import EditarPerfil from './screens/EditarPerfil';
 import PerfilTarjetas from './screens/PerfilTarjetas';
 import Gestion_de_transacciones from './screens/Gestion_de_transacciones';
+import ConfigEditarContrasena from './screens/ConfigEditarContrasena';
+import ConfigEditarMoneda from './screens/ConfigEditarMoneda';
 
 
-
-// Componentes temporales si faltan archivos
-const Transacciones = () => <View style={{flex:1,justifyContent:'center',alignItems:'center'}}><Text>Transacciones</Text></View>;
-const Graficas = () => <View style={{flex:1,justifyContent:'center',alignItems:'center'}}><Text>Gráficas</Text></View>;
 
 // --- CREACIÓN DE NAVEGADORES ---
 const Stack = createNativeStackNavigator();
@@ -70,6 +68,7 @@ function AppTabs() {
       <Tab.Screen name="Transacciones" component={Gestion_de_transacciones} />
       <Tab.Screen name="Metas" component={Metas} />
       <Tab.Screen name="Perfil" component={Perfil} />
+
     </Tab.Navigator>
   );
 }
@@ -103,7 +102,7 @@ export default function App() {
         <Stack.Screen name="Registro" component={Registro} options={{ headerShown: false }} />
         <Stack.Screen name="OlvidarPassword" component={OlvidarPassword} options={{ title: 'Recuperar' }} />
         <Stack.Screen name="CerrandoSesion" component={CerrandoSesion} options={{ headerShown: false }} />
-
+        
         {/* APP PRINCIPAL (Ahora es el Drawer que contiene los Tabs) */}
         <Stack.Screen 
           name="MainApp" 
@@ -115,7 +114,7 @@ export default function App() {
         <Stack.Screen name="Configuracion" component={Configuracion} options={{ headerShown: false }} />
         <Stack.Screen name="Notificaciones" component={Notificaciones} options={{ headerShown: false }} />
         <Stack.Screen name="Soporte" component={Soporte} options={{ headerShown: false }} />
-        
+        <Stack.Screen name="ConfigEditarMoneda" component={ConfigEditarMoneda} options={{ headerShown: false }} />
         <Stack.Screen 
           name="EditarPerfil" 
           component={EditarPerfil} 

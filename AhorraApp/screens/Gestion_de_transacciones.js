@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, SectionList, StyleSheet, Button, TextInput, SafeAreaView, StatusBar, Platform, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, SectionList, StyleSheet, TextInput, SafeAreaView, StatusBar, Platform, Alert } from 'react-native';
 import { Feather } from "@expo/vector-icons";
 
 export default function Gestion_de_transaccioness({ navigation }) {
@@ -53,6 +53,7 @@ export default function Gestion_de_transaccioness({ navigation }) {
     Alert.alert("Agregar", "Ir a la pantalla de añadir nueva transacción.");
   };
 
+  // --- CAMBIO AQUÍ: Se reemplazaron los Buttons por TouchableOpacity con Iconos ---
   const renderItem = ({ item }) => (
     <View style={styles.item}>
       <View style={styles.iconoCategoria}>
@@ -71,9 +72,15 @@ export default function Gestion_de_transaccioness({ navigation }) {
       </View>
 
       <View style={styles.contBotonesItem}>
-        <Button color='green' title='Edit' onPress={() => handleEditar(item.categoria)} />
-        <View style={{width: 10}}/>
-        <Button color='#971108' title='Elim' onPress={() => handleEliminar(item.categoria)} />
+        {/* Botón de Editar (Lápiz) */}
+        <TouchableOpacity onPress={() => handleEditar(item.categoria)} style={styles.iconButton}>
+           <Feather name="edit-2" size={22} color="green" />
+        </TouchableOpacity>
+
+        {/* Botón de Eliminar (Basura) */}
+        <TouchableOpacity onPress={() => handleEliminar(item.categoria)} style={styles.iconButton}>
+           <Feather name="trash-2" size={22} color="#971108" />
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -82,7 +89,7 @@ export default function Gestion_de_transaccioness({ navigation }) {
     <SafeAreaView style={styles.container}>
       <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
       
-     <View style={styles.header}>
+      <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.openDrawer()}>
           <Feather name="menu" size={28} color="#33604E" />
         </TouchableOpacity>
@@ -99,7 +106,6 @@ export default function Gestion_de_transaccioness({ navigation }) {
           <Feather name="mic" size={20} color="#999" />
         </View>
 
-        {/* AQUÍ ESTÁ EL CAMBIO: Borré el View con 'gap' y dejé solo la campana */}
         <TouchableOpacity onPress={() => navigation.navigate('Notificaciones')}>
           <Feather name="bell" size={26} color="#33604E" />
         </TouchableOpacity>
@@ -176,6 +182,11 @@ const styles = StyleSheet.create({
   },
   contBotonesItem:{
     flexDirection: 'row',
+    alignItems: 'center',
+    gap: 15, // Espacio entre los iconos
+  },
+  iconButton: {
+    padding: 5, // Aumenta el área táctil del icono
   },
   iconoCategoria:{
       marginRight: 10,
