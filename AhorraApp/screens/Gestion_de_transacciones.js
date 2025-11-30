@@ -1,18 +1,23 @@
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { View, Text, TouchableOpacity, SectionList, StyleSheet, Button, TextInput, SafeAreaView, StatusBar, Platform } from 'react-native';
 import { Feather } from "@expo/vector-icons"
 import MenuDespegable from './MenuDespegable';
+import { useFocusEffect } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack'; 
 import { NavigationContainer } from '@react-navigation/native';
+import DatabaseService from '../database/DatabaseService';
+
+//
 import TransaccionesAgregar from './TransaccionesAgregar';
 import TransaccionesEditar from './TransaccionesEditar';
 import TransaccionesEliminar from './TransaccionesEliminar';
 import Configuracion from './Configuracion';
 import Notificaciones from './Notificaciones';
 
+
 const Stack = createStackNavigator();
-function AllScreen() {
+function botones() {
   return (
     <NavigationContainer>
       <Stack.Navigator>
@@ -64,10 +69,52 @@ function AllScreen() {
   );
 }
 
+/* //Función para leer desde DatabaseService
+const cargarTransacciones = async () => {
+  try {
+    const data = await DatabaseService.getAll();
+    setTransacciones(data);
+  } catch (error) {
+    console.log("Error al cargar datos:", error);
+  }
+};
+ */
 export function Gestion_de_transacciones ({ navigation }) {
   const [filtro, setFiltro] = useState('Todos');
   const [searchText, setSearchText] = useState('');
+const[transacciones, setTransacciones] = useState([]);
 
+
+
+  const cargarTransacciones = async () => {
+    try {
+      const data = await DatabaseService.getAll();
+      setTransacciones(data);
+    } catch (error) {
+      console.log("Error al cargar datos:", error);
+    }
+
+  };
+
+    
+     // ===== Cargar transacciones cada vez que la pantalla se enfoque =====
+  useFocusEffect(
+    useCallback(() => {
+      cargarTransacciones();
+    }, [])
+  );
+
+  // Transformar datos de DB → formato del SectionList
+  const datos = transacciones.map(t => ({
+    id: t.id.toString(),
+    categoria: t.categoria,
+    monto: t.monto,
+    tipo: t.tipo,
+    fecha: `${t.dia} / ${t.mes} / ${t.año}`,
+  }));
+
+
+  /* 
   const datos = [
     { id: '1', categoria: 'Mascotas', monto: -500, fecha: '27 / Sept / 2025', tipo: 'Gasto' },
     { id: '2', categoria: 'Wifi', monto: -380, fecha: '27 / Sept / 2025', tipo: 'Gasto' },
@@ -75,6 +122,11 @@ export function Gestion_de_transacciones ({ navigation }) {
     { id: '4', categoria: 'Compra', monto: -180, fecha: '25 / Sept / 2025', tipo: 'Gasto' },
     { id: '5', categoria: 'Alimentos', monto: -180, fecha: '25 / Sept / 2025', tipo: 'Gasto' },
   ];
+ */
+
+
+
+
 
   const prepararDatos = () => {
     let datosFiltrados = filtro === 'Todos' 
@@ -309,4 +361,4 @@ const styles = StyleSheet.create({
 
 
 
-export default AllScreen;
+export default botones;
