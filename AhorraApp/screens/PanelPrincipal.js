@@ -12,7 +12,7 @@ export default function PanelPrincipal({ navigation }) {
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.navigate('Perfil')}>
+          <TouchableOpacity onPress={() => navigation.openDrawer()}>
             <Feather name="menu" size={28} color="#33604E" />
           </TouchableOpacity>
 

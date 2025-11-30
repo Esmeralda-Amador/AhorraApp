@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, SafeAreaView, ScrollView, StatusBar, Platform, TouchableOpacity, Alert } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 
-export default function Soporte() {
+export default function Soporte({navigation}) {
 
   const handleContacto = () => {
     Alert.alert("Contactar a Soporte", "Aquí se abriría el cliente de correo o un chat.");
@@ -13,7 +13,7 @@ export default function Soporte() {
       <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
       
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => console.log("Volver")}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
           <Feather name="arrow-left" size={24} color="#33604E" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Soporte y Ayuda</Text>

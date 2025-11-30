@@ -1,144 +1,127 @@
+import 'react-native-gesture-handler'; // IMPORTANTE: Debe ser la primera línea
 import React from 'react';
+import { View, Text } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Feather } from '@expo/vector-icons'; // Para los iconos de abajo
+import { createDrawerNavigator } from '@react-navigation/drawer'; // Importamos el Drawer
+import { Feather } from '@expo/vector-icons';
 
-// 1. IMPORTA TUS PANTALLAS
-import InicioSesion from './screens/InicioSesion'; 
+// --- TUS PANTALLAS ---
+import InicioSesion from './screens/InicioSesion';
 import Registro from './screens/Registro';
-import OlvidarPassword from './screens/OlvidarContrasena'; // 
-//import OlvidarPassword from './screens/OlvidarPassword'; // 
+import OlvidarPassword from './screens/OlvidarContrasena'; // Ajusta si el nombre es diferente
+import CerrandoSesion from './screens/CerrandoSesion';
+
+// Pantallas Principales
 import PanelPrincipal from './screens/PanelPrincipal';
-import Gestion_de_transacciones from './screens/Gestion_de_transacciones';
-import Perfil from './screens/Perfil';  
+import Metas from './screens/Metas'; // Asumo que ya tienes el archivo Metas.js
+import Perfil from './screens/Perfil';
+import Configuracion from './screens/Configuracion';
 import Notificaciones from './screens/Notificaciones';
-import Metas from './screens/Metas';
+import Soporte from './screens/Soporte';
+import MenuDespegable from './screens/MenuDespegable'; // Tu nuevo archivo de menú
 import EditarPerfil from './screens/EditarPerfil';
 import PerfilTarjetas from './screens/PerfilTarjetas';
-import Configuracion from './screens/Configuracion';
-import Soporte from './screens/Soporte';  
+import Gestion_de_transacciones from './screens/Gestion_de_transacciones';
+
+
+
+// Componentes temporales si faltan archivos
+const Transacciones = () => <View style={{flex:1,justifyContent:'center',alignItems:'center'}}><Text>Transacciones</Text></View>;
+const Graficas = () => <View style={{flex:1,justifyContent:'center',alignItems:'center'}}><Text>Gráficas</Text></View>;
+
+// --- CREACIÓN DE NAVEGADORES ---
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
+const Drawer = createDrawerNavigator(); // Creamos la instancia del Drawer
 
-// --- NAVEGADOR DE PESTAÑAS (TABS) ---
+// 1. NAVEGADOR DE PESTAÑAS (TABS - Abajo)
 function AppTabs() {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
-        headerShown: false, // 
-        tabBarIcon: ({ color, size }) => {
-          let iconName;
-          if (route.name === 'Panel') iconName = 'home';
-          else if (route.name === 'Transacciones') iconName = 'dollar-sign';
-          else if (route.name === 'Perfil') iconName = 'user';
-          else if (route.name === 'Metas') iconName = 'target';
-          return <Feather name={iconName} size={size} color={color} />;
-        },
-        tabBarActiveTintColor: '#33604E', // 
+        headerShown: false,
+        tabBarActiveTintColor: '#33604E',
         tabBarInactiveTintColor: 'gray',
         tabBarStyle: {
-          height: 90,        // AUMENTADO: Antes era 70, lo subimos a 90 para dar espacio real
-          paddingBottom: 30, // AUMENTADO: Esto empuja el texto hacia arriba para que la línea negra no lo tape
+          height: 90,
+          paddingBottom: 30,
           paddingTop: 10,
           backgroundColor: '#ffffff',
-          borderTopWidth: 0,
-          elevation: 10,  // 3. Separamos el icono del borde superior de la barra
+          elevation: 10,
         },
         tabBarLabelStyle: {
-          fontSize: 12,     // Tamaño del texto
+          fontSize: 12,
           fontWeight: '600',
-          marginTop: 5,     // 4. Espacio entre el icono y el texto
+          marginTop: 5,
         },
-        // -------------------------------------
-
         tabBarIcon: ({ color, size }) => {
-          let iconName;
-          if (route.name === 'Panel') iconName = 'home';
+          let iconName = 'circle';
+          if (route.name === 'Inicio') iconName = 'home';
           else if (route.name === 'Transacciones') iconName = 'dollar-sign';
-          else if (route.name === 'Perfil') iconName = 'user';
           else if (route.name === 'Metas') iconName = 'target';
-          
+          else if (route.name === 'Perfil') iconName = 'user';
           return <Feather name={iconName} size={24} color={color} />;
         },
       })}
     >
-      <Tab.Screen name="Panel" component={PanelPrincipal} />
-      <Tab.Screen name="Transacciones" component={Gestion_de_transacciones} /> 
+      <Tab.Screen name="Inicio" component={PanelPrincipal} />
+      <Tab.Screen name="Transacciones" component={Gestion_de_transacciones} />
       <Tab.Screen name="Metas" component={Metas} />
-      <Tab.Screen name="Perfil" component={Perfil} /> 
-
+      <Tab.Screen name="Perfil" component={Perfil} />
     </Tab.Navigator>
   );
 }
 
-// --- NAVEGADOR PRINCIPAL (STACK) ---
+// 2. NAVEGADOR LATERAL (DRAWER - Izquierda)
+// Este envuelve a los Tabs.
+function MainDrawer() {
+  return (
+    <Drawer.Navigator
+      drawerContent={(props) => <MenuDespegable {...props} />} // Usamos tu componente personalizado
+      screenOptions={{ 
+        headerShown: false, // Ocultamos el header del drawer para usar el tuyo propio en cada pantalla
+        drawerStyle: { width: '80%' }, // Ancho del menú lateral
+        drawerType: 'front',
+      }}
+    >
+      {/* La pantalla principal del Drawer son los Tabs */}
+      <Drawer.Screen name="HomeTabs" component={AppTabs} />
+    </Drawer.Navigator>
+  );
+}
+
+// 3. NAVEGADOR PRINCIPAL (STACK - Global)
 export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="InicioSesion">
         
-        {/* GRUPO 1: AUTENTICACIÓN */}
-        <Stack.Screen 
-          name="InicioSesion" 
-          component={InicioSesion} 
-          options={{ headerShown: false }} 
-        />
-        <Stack.Screen 
-          name="Registro" 
-          component={Registro} 
-          options={{ headerShown: false }} 
-        />
-        <Stack.Screen 
-          name="OlvidarPassword" 
-          component={OlvidarPassword} 
-          options={{ title: 'Recuperar', headerTintColor: '#33604E' }} // Aquí sí dejamos header para poder volver atrás
-        />
+        {/* Auth */}
+        <Stack.Screen name="InicioSesion" component={InicioSesion} options={{ headerShown: false }} />
+        <Stack.Screen name="Registro" component={Registro} options={{ headerShown: false }} />
+        <Stack.Screen name="OlvidarPassword" component={OlvidarPassword} options={{ title: 'Recuperar' }} />
+        <Stack.Screen name="CerrandoSesion" component={CerrandoSesion} options={{ headerShown: false }} />
 
-        {/* GRUPO 2: APLICACIÓN PRINCIPAL (CONTIENE LOS TABS) */}
+        {/* APP PRINCIPAL (Ahora es el Drawer que contiene los Tabs) */}
         <Stack.Screen 
           name="MainApp" 
-          component={AppTabs} 
-          options={{ headerShown: false }} 
-        />
-        {/* Editar Perfil */}
-        <Stack.Screen 
-  name="EditarPerfil" 
-  component={EditarPerfil} 
-  options={{ 
-    headerShown: false,
-    presentation: 'modal', // <--- ESTA LÍNEA ES LA CLAVE
-    animation: 'slide_from_bottom' // Asegura que suba desde abajo
-  }} 
-/>
-
-        {/* Tarjetas */}
-        <Stack.Screen 
-          name="PerfilTarjetas" 
-          component={PerfilTarjetas} 
+          component={MainDrawer} 
           options={{ headerShown: false }} 
         />
 
-        {/* Configuración */}
+        {/* Pantallas secundarias (se abren encima de todo) */}
+        <Stack.Screen name="Configuracion" component={Configuracion} options={{ headerShown: false }} />
+        <Stack.Screen name="Notificaciones" component={Notificaciones} options={{ headerShown: false }} />
+        <Stack.Screen name="Soporte" component={Soporte} options={{ headerShown: false }} />
+        
         <Stack.Screen 
-          name="Configuracion" 
-          component={Configuracion} 
-          options={{ headerShown: false }} 
+          name="EditarPerfil" 
+          component={EditarPerfil} 
+          options={{ headerShown: false, presentation: 'modal', animation: 'slide_from_bottom' }} 
         />
-
-        {/* Notificaciones */}
-        <Stack.Screen 
-          name="Notificaciones" 
-          component={Notificaciones} 
-          options={{ headerShown: false }} 
-        />
-
-        {/* Soporte */}
-        <Stack.Screen 
-          name="Soporte" 
-          component={Soporte} 
-          options={{ headerShown: false }} 
-        />
+        <Stack.Screen name="PerfilTarjetas" component={PerfilTarjetas} options={{ headerShown: false }} />
 
       </Stack.Navigator>
     </NavigationContainer>

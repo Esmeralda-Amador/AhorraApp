@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, StatusBar, Platform } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, StatusBar, Platform } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 
-export default function Notificaciones () {
+export default function Notificaciones({ navigation }) {
 
   const [notificaciones, setNotificaciones] = useState([
     { id: '1', icon: 'log-in', title: 'Has ingresado a Ahorra+ App.', subtitle: 'Ayer, 8:21 PM', color: '#33604E' },
@@ -14,29 +14,24 @@ export default function Notificaciones () {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
-      <ScrollView style={styles.scrollView}>
+      
+      {/* --- HEADER CENTRADO --- */}
+      <View style={styles.header}>
+        {/* 1. Izquierda: Botón Atrás */}
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+           <Feather name="arrow-left" size={26} color="#33604E" />
+        </TouchableOpacity>
+
+        {/* 2. Centro: Título */}
+        <Text style={styles.headerTitle}>Notificaciones</Text>
         
-        <View style={styles.header}>
-          <TouchableOpacity>
-            <Feather name="menu" size={24} color="#33604E" />
-          </TouchableOpacity>
-          <View style={styles.searchBar}>
-            <Feather name="search" size={18} color="#999" />
-            <TextInput placeholder="Buscar en notificaciones..." style={styles.searchInput} placeholderTextColor="#999" />
-            <Feather name="mic" size={18} color="#999" />
-          </View>
-          <TouchableOpacity>
-            <Feather name="bell" size={24} color="#33604E" />
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Feather name="settings" size={24} color="#33604E" />
-          </TouchableOpacity>
-        </View>
+        {/* 3. Derecha: Espacio vacío invisible (del mismo tamaño que la flecha) para equilibrar */}
+        <View style={{ width: 26 }} /> 
+      </View>
+      {/* ----------------------- */}
 
-        <View style={styles.titleContainer}>
-          <Text style={styles.title}>Notificaciones</Text>
-        </View>
-
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        
         <View style={styles.listContainer}>
           {notificaciones.map((notif) => (
             <TouchableOpacity key={notif.id} style={styles.card}>
@@ -57,82 +52,57 @@ export default function Notificaciones () {
           ))}
         </View>
 
-      </ScrollView>
+        <View style={{height: 40}} />
 
-      <View style={styles.bottomNav}>
-        <TouchableOpacity style={styles.navItem}>
-          <Feather name="home" size={24} color="#33604E" />
-          <Text style={styles.navLabel}>Inicio</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
-          <Feather name="bar-chart-2" size={24} color="#999" />
-          <Text style={[styles.navLabel, styles.navLabelInactive]}>Estadísticas</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
-          <Feather name="dollar-sign" size={24} color="#999" />
-          <Text style={[styles.navLabel, styles.navLabelInactive]}>Ahorros</Text>
-        </TouchableOpacity>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };
 
+const STATUS_BAR_HEIGHT = Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : 0;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F5F5F5", 
   },
   scrollView: {
     flex: 1,
-    backgroundColor: "#E7E7E7",
   },
+
+  // --- HEADER CENTRADO ---
   header: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between', // Esto separa los 3 elementos (Izq - Centro - Der)
     paddingHorizontal: 20,
-    paddingVertical: 15,
-    backgroundColor: "#FFFFFF",
-    gap: 12,
-    paddingTop: 15 + (Platform.OS === "android" ? StatusBar.currentHeight : 0),
+    paddingTop: STATUS_BAR_HEIGHT + 20, 
+    paddingBottom: 20, 
+    backgroundColor: '#FFFFFF',
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 4, 
   },
-  searchBar: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#F5F5F5",
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    gap: 8,
+  headerTitle: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#333',
+    // No necesitamos textAlign center porque justifyContent ya lo ubica al medio del espacio disponible
   },
-  searchInput: {
-    flex: 1,
-    fontSize: 14,
-    color: "#333",
-  },
-  titleContainer: {
-    backgroundColor: "#FFFFFF",
-    paddingVertical: 40,
-    paddingHorizontal: 20,
-    alignItems: "center",
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: "700",
-    color: "#000",
-    textAlign: "center",
-  },
+  
   listContainer: {
     padding: 20,
     gap: 15,
-    paddingBottom: 40,
+    paddingTop: 20, 
   },
   card: {
     backgroundColor: "#FFFFFF",
-    borderRadius: 12,
+    borderRadius: 15,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.05,
     shadowRadius: 4,
     elevation: 2,
     flexDirection: 'row',
@@ -140,46 +110,25 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   iconContainer: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 48,
+    height: 48,
+    borderRadius: 24, 
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: 15,
   },
   textContainer: {
     flex: 1,
   },
   cardTitle: {
     fontSize: 15,
-    fontWeight: '500',
+    fontWeight: '600',
     color: '#333',
+    lineHeight: 20,
   },
   cardSubtitle: {
     fontSize: 13,
-    color: '#999',
-    marginTop: 2,
-  },
-  bottomNav: {
-    flexDirection: "row",
-    backgroundColor: "#FFFFFF",
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderTopWidth: 1,
-    borderTopColor: "#E7E7E7",
-    justifyContent: "space-around",
-  },
-  navItem: {
-    alignItems: "center",
-    gap: 4,
-  },
-  navLabel: {
-    fontSize: 12,
-    color: "#33604E",
-    fontWeight: "600",
-  },
-  navLabelInactive: {
-    color: "#999",
-    fontWeight: "400",
+    color: '#888',
+    marginTop: 4,
   },
 });

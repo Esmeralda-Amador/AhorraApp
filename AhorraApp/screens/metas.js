@@ -10,7 +10,7 @@ export default function Metas({ navigation }) {
       {/* --- HEADER IDÉNTICO AL PANEL --- */}
       <View style={styles.header}>
         {/* 1. Menú a la izquierda */}
-        <TouchableOpacity onPress={() => navigation.navigate('Perfil')}>
+        <TouchableOpacity onPress={() => navigation.openDrawer()}>
            <Feather name="menu" size={28} color="#33604E" />
         </TouchableOpacity>
 

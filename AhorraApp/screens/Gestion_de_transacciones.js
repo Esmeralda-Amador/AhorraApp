@@ -83,7 +83,7 @@ export default function Gestion_de_transaccioness({ navigation }) {
       <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
       
      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.navigate('Perfil')}>
+        <TouchableOpacity onPress={() => navigation.openDrawer()}>
           <Feather name="menu" size={28} color="#33604E" />
         </TouchableOpacity>
 
