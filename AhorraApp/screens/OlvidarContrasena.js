@@ -5,7 +5,7 @@ import React, { useState } from "react"
 import { View, Text, StyleSheet, SafeAreaView, TextInput, TouchableOpacity, StatusBar, Alert } from "react-native"
 import { Feather } from "@expo/vector-icons"
 
-export default function OlvidarPassword() {
+export default function OlvidarContrasena({navigation}) {
   const [email, setEmail] = useState("")
 
   // Función para manejar el envío del código
@@ -31,7 +31,7 @@ export default function OlvidarPassword() {
     Alert.alert(
       "¡Revisa tu correo!",
       "Se ha enviado un código de recuperación a tu bandeja de entrada.",
-      [{ text: "OK", onPress: () => setEmail("") }]
+      [{ text: "OK", onPress: () => navigation.navigate("InicioSesion") }]
     )
   }
 

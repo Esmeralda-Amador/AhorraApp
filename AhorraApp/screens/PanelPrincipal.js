@@ -1,18 +1,20 @@
 import React from 'react';
-import { View, Text, TextInput, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Image } from 'react-native';
+import {View, Text, TextInput, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Image, StatusBar, Platform } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 
-// Se importa el logo de la aplicación
 const Logo = require('../assets/AhorraApp.jpg');
 
-export default function PanelPrincipal() {
+// Recibimos { navigation } para poder ir a otras pantallas
+export default function PanelPrincipal({ navigation }) {
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView style={styles.scrollView}>
+      <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
 
-        {/* Encabezado con menú, buscador, notificación y logo */}
+      <ScrollView style={styles.scrollView}>
+        {/* Encabezado */}
         <View style={styles.header}>
-          <TouchableOpacity>
+            {/* Botón MENU: Lo conectamos para ir a 'MenuDespegable' o 'Perfil' */}
+          <TouchableOpacity onPress={() => navigation.navigate('Perfil')}>
             <Feather name="menu" size={24} color="#33604E" />
           </TouchableOpacity>
 
@@ -27,31 +29,35 @@ export default function PanelPrincipal() {
             <Feather name="mic" size={18} color="#999" />
           </View>
 
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('Notificaciones')}>
             <Feather name="bell" size={24} color="#33604E" />
           </TouchableOpacity>
         </View>
 
-        {/* Saludo principal con logo */}
+        {/* Saludo */}
         <View style={styles.greetingContainer}>
           <View>
             <Text style={styles.greetingText}>Hola,</Text>
             <Text style={styles.nameText}>Danna.</Text>
           </View>
-
-          {/* Logo en lugar del icono */}
           <Image source={Logo} style={styles.logoImage} />
         </View>
 
-        {/* Tarjeta con el saldo actual */}
+        {/* Tarjeta del saldo */}
         <View style={styles.balanceCard}>
           <Text style={styles.balanceLabel}>Saldo Actual</Text>
           <Text style={styles.balanceAmount}>$1,852.00</Text>
         </View>
 
-        {/* Sección de metas de ahorro */}
+        {/* Tarjeta de metas */}
         <View style={styles.goalsCard}>
-          <Text style={styles.goalsTitle}>Mis metas</Text>
+          <View style={{flexDirection:'row', justifyContent:'space-between'}}>
+             <Text style={styles.goalsTitle}>Mis metas</Text>
+             {/* Enlace para ir a la pantalla completa de Metas */}
+             <TouchableOpacity onPress={() => navigation.navigate('Metas')}>
+                <Text style={{color:'#33604E', fontWeight:'600'}}>Ver todas</Text>
+             </TouchableOpacity>
+          </View>
 
           {/* Meta 1 */}
           <View style={styles.goalItem}>
@@ -79,31 +85,22 @@ export default function PanelPrincipal() {
             </View>
           </View>
         </View>
+
+        {/* Espacio extra abajo para que no se corte con el TabBar */}
+        <View style={{height: 100}} /> 
       </ScrollView>
 
-      {/* Navegación inferior */}
-      <View style={styles.bottomNav}>
-        <TouchableOpacity style={styles.navItem}>
-          <Feather name="home" size={24} color="#33604E" />
-          <Text style={styles.navLabel}>Inicio</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.navItem}>
-          <Feather name="bar-chart-2" size={24} color="#999" />
-          <Text style={[styles.navLabel, styles.navLabelInactive]}>Estadísticas</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.navItem}>
-          <Feather name="dollar-sign" size={24} color="#999" />
-          <Text style={[styles.navLabel, styles.navLabelInactive]}>Metas</Text>
-        </TouchableOpacity>
-      </View>
+      {/* --- AQUÍ ELIMINÉ EL MENÚ INFERIOR MANUAL --- 
+          Porque el Tab.Navigator de App.js pondrá uno funcional automáticamente.
+      */}
+      
     </SafeAreaView>
   );
 }
 
+const STATUS_BAR_HEIGHT = Platform.OS === 'android' ? StatusBar.currentHeight || 24 : 0;
+
 const styles = StyleSheet.create({
-  // Fondo general
   container: {
     flex: 1,
     backgroundColor: '#E7E7E7',
@@ -111,18 +108,15 @@ const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
   },
-
-  // Parte superior (menú, buscador, notificación)
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 15,
+    paddingTop: STATUS_BAR_HEIGHT + 7,
     backgroundColor: '#FFFFFF',
     gap: 12,
   },
-
-  // Estilo de la barra de búsqueda
   searchBar: {
     flex: 1,
     flexDirection: 'row',
@@ -138,8 +132,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#333',
   },
-
-  // Sección de saludo
   greetingContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -157,15 +149,11 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#333',
   },
-
-  // Logo 
   logoImage: {
     width: 55,
     height: 55,
     borderRadius: 45,
   },
-
-  // Tarjeta del saldo
   balanceCard: {
     backgroundColor: '#FFFFFF',
     marginHorizontal: 20,
@@ -188,8 +176,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#33604E',
   },
-
-  // Tarjeta de metas
   goalsCard: {
     backgroundColor: '#FFFFFF',
     marginHorizontal: 20,
@@ -208,8 +194,6 @@ const styles = StyleSheet.create({
     color: '#333',
     marginBottom: 16,
   },
-
-  // Cada meta
   goalItem: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -247,28 +231,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666',
   },
-
-  // Navegación inferior
-  bottomNav: {
-    flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderTopWidth: 1,
-    borderTopColor: '#E7E7E7',
-    justifyContent: 'space-around',
-  },
-  navItem: {
-    alignItems: 'center',
-    gap: 4,
-  },
-  navLabel: {
-    fontSize: 12,
-    color: '#33604E',
-    fontWeight: '600',
-  },
-  navLabelInactive: {
-    color: '#999',
-    fontWeight: '400',
-  },
+  // Elimine los estilos de navItem, navLabel, bottomNav porque ya no se usan
 });
