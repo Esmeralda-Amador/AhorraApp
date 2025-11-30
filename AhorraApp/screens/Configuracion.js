@@ -108,7 +108,7 @@ export default function Configuracion({ navigation }) {
                  <ConfigOption 
                     icon="lock" 
                     label="Cambiar Contraseña" 
-                    onPress={() => Alert.alert("Seguridad", "Formulario de cambio de contraseña.")}
+                    onPress={() => navigation.navigate('ConfigEditarContrasena')}
                 />
             </View>
         </View>
