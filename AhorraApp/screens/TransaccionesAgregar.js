@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, SafeAreaView, ScrollView, StatusBar, Platform } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 
-export default function TransaccionesAgregar () {
+export default function TransaccionesAgregar ({navigation}) {
 
   const [categoria, setCategoria] = useState('');
   const [monto, setMonto] = useState('');
@@ -64,7 +64,7 @@ export default function TransaccionesAgregar () {
       <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
       
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => console.log("Volver")}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
           <Feather name="arrow-left" size={24} color="#33604E" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Nueva Transacción</Text>
