@@ -3,7 +3,8 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 
-export default function MenuDespegable() {
+
+export default function MenuDespegable({navigation}) {
   return (
     <View style={styles.background}>
       <ScrollView contentContainerStyle={styles.container}>
@@ -29,12 +30,13 @@ export default function MenuDespegable() {
             <Text style={styles.menuText}>Perfil</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.menuButton}>
+
+          <TouchableOpacity style={styles.menuButton}  onPress={()=> navigation.navigate("Gestion_de_transacciones")}>
             <Feather name="list" size={22} color="#33604E" />
             <Text style={styles.menuText}>Transacciones</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.menuButton}>
+          <TouchableOpacity style={styles.menuButton} onPress={()=> navigation.navigate("Graficas")}>
             <Feather name="bar-chart-2" size={22} color="#33604E" />
             <Text style={styles.menuText}>Gráficas</Text>
           </TouchableOpacity>

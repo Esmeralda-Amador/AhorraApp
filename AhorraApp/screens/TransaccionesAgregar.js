@@ -13,47 +13,59 @@ export default function TransaccionesAgregar({ navigation }) {
   const [monto, setMonto] = useState('');
   const [dia, setDia] = useState('');
   const [mes, setMes] = useState('');
-  const [ano, setAno] = useState('');
+  const [year, setYear] = useState('');
+  const [descripcion, setDescripcion] = useState('');
 
   const guardarMovimiento = async () => {
     const catLimpia = categoria.trim();
     const montoLimpio = monto.trim();
     const diaLimpio = dia.trim();
     const mesLimpio = mes.trim();
-    const anoLimpio = ano.trim();
+    const yearLimpio = year.trim();
+    const descLimpia = descripcion.trim();
 
-    if (!catLimpia || !montoLimpio || !diaLimpio || !mesLimpio || !anoLimpio) {
-      Alert.alert('Campos Incompletos', 'Por favor, rellena todos los campos.');
+    if (!catLimpia || !montoLimpio || !diaLimpio || !mesLimpio || !yearLimpio) {
+      Alert.alert('Campos incompletos', 'Por favor, rellena todos los campos.');
       return;
     }
 
     const montoNum = parseFloat(montoLimpio);
     if (isNaN(montoNum) || montoNum === 0) {
-      Alert.alert('Monto Inválido', 'El monto debe ser un número distinto de cero.');
+      Alert.alert('Monto inválido', 'El monto debe ser un número distinto de cero.');
       return;
     }
 
     const diaNum = parseInt(diaLimpio, 10);
     if (isNaN(diaNum) || diaNum < 1 || diaNum > 31) {
-      Alert.alert('Día Inválido', 'Por favor, ingresa un día válido (1-31).');
+      Alert.alert('Día inválido', 'Por favor, ingresa un día válido (1-31).');
       return;
     }
 
-    const anoNum = parseInt(anoLimpio, 10);
-    if (isNaN(anoNum) || anoNum < 2020 || anoNum > 2030) {
-      Alert.alert('Año Inválido', 'Por favor, ingresa un año válido (ej: 2024, 2025).');
+    const mesNum = parseInt(mesLimpio, 10);
+    if (isNaN(mesNum) || mesNum < 1 || mesNum > 12) {
+      Alert.alert('Mes inválido', 'Por favor, ingresa un mes válido (1-12).');
+      return;
+    }
+
+    const yearNum = parseInt(yearLimpio, 10);
+    if (isNaN(yearNum) || yearNum < 2020 || yearNum > 2030) {
+      Alert.alert('Año inválido', 'Por favor, ingresa un año válido (ej: 2024, 2025).');
       return;
     }
 
     try {
-const tipoDeterminado = montoNum > 0 ? 'Ingreso' : 'Gasto';
+      // Inicializa la DB solo una vez
+      await DatabaseService.initialize();
+
+      const tipoDeterminado = montoNum > 0 ? 'Ingreso' : 'Gasto';
       const nuevaTransaccion = {
         categoria: catLimpia,
         monto: montoNum,
         dia: diaNum,
-        mes: parseInt(mesLimpio, 10),
-        año: anoNum,
+        mes: mesNum,
+        year: yearNum,
         tipo: tipoDeterminado,
+        descripcion: descLimpia,
       };
 
       await DatabaseService.add(nuevaTransaccion);
@@ -61,23 +73,19 @@ const tipoDeterminado = montoNum > 0 ? 'Ingreso' : 'Gasto';
       Alert.alert(
         "¡Guardado!",
         `Se guardó un ${tipoDeterminado.toLowerCase()} de $${montoNum} en la categoría ${catLimpia}.`,
-        [
-          { 
-            text: "OK", 
-            onPress: () => navigation.goBack() // Vuelve a Gestion_de_transacciones
-          }
-        ]
+        [{ text: "OK", onPress: () => navigation.goBack() }]
       );
 
-      // Limpiar inputs (opcional)
+      // Limpiar inputs
       setCategoria('');
       setMonto('');
       setDia('');
       setMes('');
-      setAno('');
+      setYear('');
+      setDescripcion('');
 
     } catch (error) {
-      console.log(error);
+      console.log("Error al guardar transacción:", error);
       Alert.alert("Error", "Hubo un problema al guardar la transacción.");
     }
   };
@@ -85,18 +93,14 @@ const tipoDeterminado = montoNum > 0 ? 'Ingreso' : 'Gasto';
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
-      
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}></TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.goBack()} />
         <Text style={styles.headerTitle}>Nueva Transacción</Text>
         <View style={{ width: 24 }} />
       </View>
 
       <ScrollView style={styles.scrollView}>
         <View style={styles.formContainer}>
-
-
-
           <Text style={styles.label}>Categoría</Text>
           <View style={styles.inputCard}>
             <Feather name="tag" size={20} color="#666" style={styles.inputIcon} />
@@ -125,10 +129,40 @@ const tipoDeterminado = montoNum > 0 ? 'Ingreso' : 'Gasto';
           <Text style={styles.label}>Fecha</Text>
           <View style={styles.inputCard}>
             <View style={styles.fila}>
-              <TextInput style={styles.inputFecha} placeholder="Día" keyboardType="numeric" value={dia} onChangeText={setDia}/>
-              <TextInput style={styles.inputFecha} placeholder="Mes" value={mes} onChangeText={setMes}/>
-              <TextInput style={styles.inputFecha} placeholder="Año" keyboardType="numeric" value={ano} onChangeText={setAno}/>
+              <TextInput
+                style={styles.inputFecha} 
+                placeholder="Día" 
+                keyboardType="numeric" 
+                value={dia} 
+                onChangeText={setDia} 
+              />
+              <TextInput
+                style={styles.inputFecha} 
+                placeholder="Mes" 
+                keyboardType="numeric" 
+                value={mes} 
+                onChangeText={setMes} 
+              />
+              <TextInput
+                style={styles.inputFecha} 
+                placeholder="Año" 
+                keyboardType="numeric" 
+                value={year} 
+                onChangeText={setYear} 
+              />
             </View>
+          </View>
+
+          <Text style={styles.label}>Descripción</Text>
+          <View style={styles.inputCard}>
+            <Feather name="file-text" size={20} color="#666" style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              placeholder="Detalles de la transacción"
+              placeholderTextColor="#999"
+              value={descripcion}
+              onChangeText={setDescripcion}
+            />
           </View>
 
           <TouchableOpacity style={styles.saveButton} onPress={guardarMovimiento}>
@@ -173,16 +207,6 @@ const styles = StyleSheet.create({
   },
   inputIcon: { marginRight: 12 },
   input: { flex: 1, fontSize: 15, color: "#333" },
-  tipoCont:{ flexDirection:'row', marginBottom: 10 },
-  tipoBtn:{ 
-    flex:1, padding:14, marginHorizontal:5, borderRadius:12, 
-    backgroundColor:'#FFFFFF', alignItems:'center',
-    shadowColor: "#000", shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1, shadowRadius: 4, elevation: 2,
-  },
-  tipoBtnActivo:{ backgroundColor:'#33604e' },
-  tipoTxt:{ color:'#333', fontWeight:'bold', fontSize: 15 },
-  tipoTxtActivo:{ color: '#FFFFFF' },
   fila:{ flex:1, flexDirection:'row', justifyContent:'space-between', gap: 10 },
   inputFecha:{ 
     flex:1, backgroundColor:'#F5F5F5', padding:10, borderRadius:8, 

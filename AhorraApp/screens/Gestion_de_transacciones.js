@@ -1,132 +1,61 @@
-
+// Gestion_de_transacciones.js
 import React, { useState, useCallback } from 'react';
-import { View, Text, TouchableOpacity, SectionList, StyleSheet, Button, TextInput, SafeAreaView, StatusBar, Platform } from 'react-native';
-import { Feather } from "@expo/vector-icons"
-import MenuDespegable from './MenuDespegable';
+import { 
+  View, Text, TouchableOpacity, SectionList, StyleSheet, TextInput, 
+  SafeAreaView, StatusBar, Platform, Alert, Button
+} from 'react-native';
+import { Feather } from "@expo/vector-icons";
 import { useFocusEffect } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack'; 
-import { NavigationContainer } from '@react-navigation/native';
 import DatabaseService from '../database/DatabaseService';
 
-//
-import TransaccionesAgregar from './TransaccionesAgregar';
-import TransaccionesEditar from './TransaccionesEditar';
-import TransaccionesEliminar from './TransaccionesEliminar';
-import Configuracion from './Configuracion';
-import Notificaciones from './Notificaciones';
-
-
-const Stack = createStackNavigator();
-function botones() {
-  return (
-    <NavigationContainer>
-      <Stack.Navigator>
-
-        <Stack.Screen 
-          name="GestionTransacciones" 
-          component={Gestion_de_transacciones}
-          options={{ title: "Transacciones" }}
-        />
-
-        <Stack.Screen 
-          name="TransaccionesAgregar" 
-          component={TransaccionesAgregar}
-          options={{ title: "Agregar Transacción" }}
-        />
-
-        <Stack.Screen
-        name="Configuracion"
-        component={Configuracion}
-        options={{title: "settings"}}
-        />
-
-        <Stack.Screen
-        name= "Notificaciones"
-        component={Notificaciones}
-        options={{title: "bell"}}
-        />
-
-        <Stack.Screen
-        name="MenuDespegable"
-        component={MenuDespegable}
-        options={{title: "Menu"}}
-        />
-
-        <Stack.Screen 
-          name="TransaccionesEditar" 
-          component={TransaccionesEditar}
-          options={{ title: "Editar Transacción" }}
-        />
-
-        <Stack.Screen 
-          name="TransaccionesEliminar" 
-          component={TransaccionesEliminar}
-          options={{ title: "Eliminar Transacción" }}
-        />
-
-      </Stack.Navigator>
-    </NavigationContainer>
-  );
-}
-
-/* //Función para leer desde DatabaseService
-const cargarTransacciones = async () => {
-  try {
-    const data = await DatabaseService.getAll();
-    setTransacciones(data);
-  } catch (error) {
-    console.log("Error al cargar datos:", error);
-  }
-};
- */
-export function Gestion_de_transacciones ({ navigation }) {
+export default function Gestion_de_transacciones({ navigation }) {
   const [filtro, setFiltro] = useState('Todos');
   const [searchText, setSearchText] = useState('');
-const[transacciones, setTransacciones] = useState([]);
+  const [transacciones, setTransacciones] = useState([]);
+  const [fechaInicio, setFechaInicio] = useState('');
+  const [fechaFin, setFechaFin] = useState('');
 
-
-
+  // Inicializar DB y cargar transacciones
   const cargarTransacciones = async () => {
     try {
-      const data = await DatabaseService.getAll();
+      await DatabaseService.initialize();
+      let data = [];
+
+      // Si hay rango de fechas, usar getByDateRange
+      if (fechaInicio && fechaFin) {
+        const startParts = fechaInicio.split('-').map(Number);
+        const endParts = fechaFin.split('-').map(Number);
+        data = await DatabaseService.getByDateRange({
+          startDate: { year: startParts[0], mes: startParts[1], dia: startParts[2] },
+          endDate: { year: endParts[0], mes: endParts[1], dia: endParts[2] }
+        });
+      } else {
+        data = await DatabaseService.getALL();
+      }
+
       setTransacciones(data);
     } catch (error) {
       console.log("Error al cargar datos:", error);
+      Alert.alert("Error", "No se pudieron cargar las transacciones.");
     }
-
   };
 
-    
-     // ===== Cargar transacciones cada vez que la pantalla se enfoque =====
+  // ===== Cargar transacciones cada vez que la pantalla se enfoque =====
   useFocusEffect(
     useCallback(() => {
       cargarTransacciones();
-    }, [])
+    }, [fechaInicio, fechaFin])
   );
 
-  // Transformar datos de DB → formato del SectionList
+  // Transformar datos de DB → formato SectionList
   const datos = transacciones.map(t => ({
     id: t.id.toString(),
     categoria: t.categoria,
     monto: t.monto,
     tipo: t.tipo,
-    fecha: `${t.dia} / ${t.mes} / ${t.año}`,
+    descripcion: t.descripcion || '',
+    fecha: `${t.dia} / ${t.mes} / ${t.year}`,
   }));
-
-
-  /* 
-  const datos = [
-    { id: '1', categoria: 'Mascotas', monto: -500, fecha: '27 / Sept / 2025', tipo: 'Gasto' },
-    { id: '2', categoria: 'Wifi', monto: -380, fecha: '27 / Sept / 2025', tipo: 'Gasto' },
-    { id: '3', categoria: 'Devolución compra', monto: 580, fecha: '27 / Sept / 2025', tipo: 'Ingreso' },
-    { id: '4', categoria: 'Compra', monto: -180, fecha: '25 / Sept / 2025', tipo: 'Gasto' },
-    { id: '5', categoria: 'Alimentos', monto: -180, fecha: '25 / Sept / 2025', tipo: 'Gasto' },
-  ];
- */
-
-
-
-
 
   const prepararDatos = () => {
     let datosFiltrados = filtro === 'Todos' 
@@ -136,62 +65,79 @@ const[transacciones, setTransacciones] = useState([]);
     const busquedaLimpia = searchText.trim().toLowerCase();
     if (busquedaLimpia.length > 0) {
       datosFiltrados = datosFiltrados.filter(item => 
-        item.categoria.toLowerCase().includes(busquedaLimpia)
+        item.categoria.toLowerCase().includes(busquedaLimpia) ||
+        item.descripcion.toLowerCase().includes(busquedaLimpia)
       );
     }
 
     const grupos = {};
     datosFiltrados.forEach(item => {
       const claveFecha = item.fecha;
-      if (!grupos[claveFecha]) {
-        grupos[claveFecha] = [];
-      }
+      if (!grupos[claveFecha]) grupos[claveFecha] = [];
       grupos[claveFecha].push(item);
     });
 
-    return Object.keys(grupos).map(fecha => ({
+    // Ordenar por fecha descendente
+    const fechasOrdenadas = Object.keys(grupos).sort((a, b) => {
+      const [dA, mA, yA] = a.split(' / ').map(Number);
+      const [dB, mB, yB] = b.split(' / ').map(Number);
+      const dateA = new Date(yA, mA - 1, dA);
+      const dateB = new Date(yB, mB - 1, dB);
+      return dateB - dateA;
+    });
+
+    return fechasOrdenadas.map(fecha => ({
       title: fecha,
       data: grupos[fecha],
     }));
   };
 
-  const renderItem = ({ item }) => (
-    <View style={styles.item}>
-      <View style={styles.iconoCategoria}>
-        {item.categoria === 'Mascotas' && <Feather name="heart" size={24} color="#36504e"/> }
-        {item.categoria === 'Wifi' && <Feather name="wifi" size={24} color="#36504e"/> }
-        {item.categoria === 'Alimentos' && <Feather name="coffee" size={24} color="#36504e"/> }
-        {item.categoria === 'Compra' && <Feather name="shopping-bag" size={20} color="#36504e"/> }
-        {item.categoria === 'Devolución compra' && <Feather name="corner-up-left" size={24} color="#36504e"/> }
-      </View>
-      
-      <View style={styles.descripcionItem}>
-        <Text style={styles.categoria}>{item.categoria}</Text>
-        <Text style={[styles.monto, { color: item.monto > 0 ? '#09a466ff' : '#bc0f03ff' }]}>
-          ${item.monto}
-        </Text>
-      </View>
-
-      <View style={styles.contBotonesItem}>
-        <Button color='green' title='Edit' onPress={() => navigation.navigate('TransaccionesEditar', {item})} />
-        <View style={{width: 10}}/>
-        <Button color='#971108' title='Elim' onPress={() => navigation.navigate('TransaccionesEliminar', {item})} />
-      </View>
+const renderItem = ({ item }) => (
+  <View style={styles.item}>
+    <View style={styles.iconoCategoria}>
+      {item.categoria === 'Mascotas' && <Feather name="heart" size={24} color="#36504e"/> }
+      {item.categoria === 'Wifi' && <Feather name="wifi" size={24} color="#36504e"/> }
+      {item.categoria === 'Alimentos' && <Feather name="coffee" size={24} color="#36504e"/> }
+      {item.categoria === 'Compra' && <Feather name="shopping-bag" size={20} color="#36504e"/> }
+      {item.categoria === 'Devolución compra' && <Feather name="corner-up-left" size={24} color="#36504e"/> }
     </View>
-  );
+    
+    <View style={styles.descripcionItem}>
+      <Text style={styles.categoria}>{item.categoria}</Text>
+      <Text style={styles.descripcion}>{item.descripcion}</Text>
+      <Text style={[styles.monto, { color: item.monto > 0 ? '#09a466ff' : '#bc0f03ff' }]}>{`$${item.monto}`}</Text>
+    </View>
+
+    {/* Nuevos botones usando Button en lugar de TouchableOpacity */}
+    <View style={styles.contBotonesItem}>
+      <Button 
+        color='green' 
+        title='Edit' 
+        onPress={() => navigation.navigate('TransaccionesEditar', { item })} 
+      />
+      <View style={{ width: 10 }} />
+      <Button 
+        color='#971108' 
+        title='Elim' 
+        onPress={() => navigation.navigate('TransaccionesEliminar', { item })} 
+      />
+    </View>
+  </View>
+);
+
 
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
       
       <View style={styles.header}>
-        <TouchableOpacity  onPress={()=> navigation.navigate('MenuDespegable')}>
+        <TouchableOpacity onPress={()=> navigation.navigate('MenuDespegable')}>
           <Feather name="menu" size={24} color="#33604E"  />
         </TouchableOpacity>
         <View style={styles.searchBar}>
           <Feather name="search" size={18} color="#999" />
           <TextInput 
-            placeholder="Buscar por categoría..." 
+            placeholder="Buscar por categoría o descripción..." 
             style={styles.searchInput} 
             placeholderTextColor="#999"
             value={searchText}
@@ -205,6 +151,24 @@ const[transacciones, setTransacciones] = useState([]);
           <Feather name="settings" size={24} color="#33604E" />
         </TouchableOpacity>
       </View>
+
+      <View style={styles.fechasContainer}>
+        <TextInput
+          style={styles.fechaInput}
+          placeholder="Fecha inicio (YYYY-MM-DD)"
+          value={fechaInicio}
+          onChangeText={setFechaInicio}
+        />
+        <TextInput
+          style={styles.fechaInput}
+          placeholder="Fecha fin (YYYY-MM-DD)"
+          value={fechaFin}
+          onChangeText={setFechaFin}
+        />
+        <TouchableOpacity style={styles.botonFiltrar} onPress={cargarTransacciones}>
+          <Text style={{ color: 'white' }}>Filtrar</Text>
+        </TouchableOpacity>
+      </View>
       
       <View style={styles.contentContainer}>
         <View style={styles.tabs}>
@@ -212,7 +176,8 @@ const[transacciones, setTransacciones] = useState([]);
             <TouchableOpacity
               key={tab}
               style={[styles.tab, filtro === tab && styles.tabActivo]}
-              onPress={() => setFiltro(tab)}>
+              onPress={() => setFiltro(tab)}
+            >
               <Text style={[styles.tabTexto, filtro === tab && styles.tabTextoActivo]}>{tab}</Text>
             </TouchableOpacity>
           ))}
@@ -228,16 +193,38 @@ const[transacciones, setTransacciones] = useState([]);
           )}
         />
       </View>
-      <View>
-        <TouchableOpacity style={styles.fab} onPress={()=> navigation.navigate('TransaccionesAgregar')}>
-        <Text style={styles.fabtext} >+</Text>
+
+      <TouchableOpacity style={styles.fab} onPress={()=> navigation.navigate('TransaccionesAgregar')}>
+        <Text style={styles.fabtext}>+</Text>
       </TouchableOpacity>
-      </View>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  fechasContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    marginBottom: 10,
+  },
+  fechaInput: {
+    flex: 1,
+    backgroundColor: '#fff',
+    padding: 8,
+    marginHorizontal: 5,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    fontSize: 12,
+  },
+  botonFiltrar: {
+    backgroundColor: '#36504e',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+  },
   fab:{
     position: 'absolute',
     bottom:20,
@@ -248,13 +235,11 @@ const styles = StyleSheet.create({
     borderRadius:30,
     alignItems: 'center',
     justifyContent: 'center',
-
   },
   fabtext:{
     color: 'white',
-    fontSize: 70,
-    lineHeight: 38,
-    fontweight: 'bold',
+    fontSize: 38,
+    fontWeight: 'bold',
     textAlign: 'center',
   },
   container: {
@@ -299,6 +284,10 @@ const styles = StyleSheet.create({
   descripcionItem: {
     flex: 1,
     marginRight: 10,
+  },
+  descripcion: {
+    fontSize: 13,
+    color: '#555',
   },
   fechaTitulo: {
       fontSize: 15,
@@ -358,7 +347,3 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
-
-
-
-export default botones;

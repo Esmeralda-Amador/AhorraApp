@@ -15,18 +15,20 @@ export default function TransaccionesEliminar({ navigation }) {
   const initDB = async () => {
     try {
       await DatabaseService.initialize();
-      cargarTransacciones();
+      await cargarTransacciones();
     } catch (error) {
       console.log("Error al inicializar la DB:", error);
+      Alert.alert("Error", "No se pudo inicializar la base de datos.");
     }
   };
 
   const cargarTransacciones = async () => {
     try {
-      const data = await DatabaseService.getAll();
+      const data = await DatabaseService.getALL(); // Asegura usar la función correcta
       setTransacciones(data);
     } catch (error) {
       console.log("Error al cargar transacciones:", error);
+      Alert.alert("Error", "No se pudieron cargar las transacciones.");
     }
   };
 
@@ -40,10 +42,8 @@ export default function TransaccionesEliminar({ navigation }) {
     let confirmar = true;
 
     if (isWeb) {
-      // Confirmación simple en web
       confirmar = window.confirm("¿Estás seguro de que quieres eliminar esta transacción?");
     } else {
-      // Para Android/iOS
       confirmar = await new Promise((resolve) => {
         Alert.alert(
           "Eliminar Transacción",
@@ -59,18 +59,17 @@ export default function TransaccionesEliminar({ navigation }) {
     if (!confirmar) return;
 
     try {
+      await DatabaseService.initialize();
       const eliminado = await DatabaseService.remove(id);
       if (eliminado) {
         setTransacciones(actuales => actuales.filter(t => t.id !== id));
-        navigation.goBack(); // Regresa a Gestion_de_transacciones
+        Alert.alert("¡Eliminado!", "La transacción se eliminó correctamente.");
       } else {
-        if (isWeb) alert("No se pudo eliminar la transacción.");
-        else Alert.alert("Error", "No se pudo eliminar la transacción.");
+        Alert.alert("Error", "No se pudo eliminar la transacción.");
       }
     } catch (error) {
       console.log("Error al eliminar transacción:", error);
-      if (isWeb) alert("Ocurrió un problema al eliminar la transacción.");
-      else Alert.alert("Error", "Ocurrió un problema al eliminar la transacción.");
+      Alert.alert("Error", "Ocurrió un problema al eliminar la transacción.");
     }
   };
 
@@ -86,9 +85,7 @@ export default function TransaccionesEliminar({ navigation }) {
       <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
 
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          
-        </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.goBack()} />
         <Text style={styles.headerTitle}>Eliminar Transacción</Text>
         <View style={{ width: 24 }} />
       </View>
@@ -105,12 +102,14 @@ export default function TransaccionesEliminar({ navigation }) {
               />
               <View style={styles.itemInfo}>
                 <Text style={styles.itemCategoria}>{item.categoria}</Text>
+                <Text style={styles.itemDescripcion}>{item.descripcion}</Text>
                 <Text style={[
                   styles.itemMonto, 
                   { color: item.monto > 0 ? '#108043' : '#FF3B30' }
                 ]}>
                   ${item.monto}
                 </Text>
+                <Text style={styles.itemFecha}>{`${item.dia}/${item.mes}/${item.year}`}</Text>
               </View>
 
               <TouchableOpacity 
@@ -159,7 +158,9 @@ const styles = StyleSheet.create({
   itemIcon: { marginRight: 12 },
   itemInfo: { flex: 1 },
   itemCategoria: { fontSize: 16, fontWeight: '600', color: '#333' },
-  itemMonto: { fontSize: 14, fontWeight: '500' },
+  itemDescripcion: { fontSize: 13, color: '#666', marginTop: 2 },
+  itemMonto: { fontSize: 14, fontWeight: '500', marginTop: 2 },
+  itemFecha: { fontSize: 12, color: '#999', marginTop: 2 },
   deleteButton: { backgroundColor: '#FF3B30', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20 },
   deleteButtonText: { color: '#FFFFFF', fontWeight: '600', fontSize: 12 }
 });

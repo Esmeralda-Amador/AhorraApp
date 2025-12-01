@@ -11,21 +11,23 @@ export default function TransaccionesEditar({ route, navigation }) {
 
   const [categoria, setCategoria] = useState(item.categoria || '');
   const [monto, setMonto] = useState(item.monto !== undefined ? item.monto.toString() : '');
-  const [tipo, setTipo] = useState(item.tipo || 'Gasto');
   const [dia, setDia] = useState(item.dia !== undefined ? item.dia.toString() : '');
-  const [mes, setMes] = useState(item.mes || '');
-  const [ano, setAno] = useState(item.año !== undefined ? item.año.toString() : '');
+  const [mes, setMes] = useState(item.mes !== undefined ? item.mes.toString() : '');
+  const [year, setYear] = useState(item.year !== undefined ? item.year.toString() : '');
+  const [descripcion, setDescripcion] = useState(item.descripcion || '');
 
   const handleGuardarCambios = async () => {
-    if (!categoria.trim() || !monto.trim() || !dia.trim() || !mes.trim() || !ano.trim()) {
+    if (!categoria.trim() || !monto.trim() || !dia.trim() || !mes.trim() || !year.trim()) {
       Alert.alert('Campos incompletos', 'Por favor, completa todos los campos.');
       return;
     }
 
     const montoNum = parseFloat(monto);
     const diaNum = parseInt(dia, 10);
-    const anoNum = parseInt(ano, 10);
-const tipoDeterminado = montoNum > 0 ? 'Ingreso' : 'Gasto';
+    const mesNum = parseInt(mes, 10);
+    const yearNum = parseInt(year, 10);
+
+    const tipoDeterminado = montoNum > 0 ? 'Ingreso' : 'Gasto';
 
     if (isNaN(montoNum) || montoNum === 0) {
       Alert.alert('Monto inválido', 'El monto debe ser un número distinto de cero.');
@@ -35,7 +37,11 @@ const tipoDeterminado = montoNum > 0 ? 'Ingreso' : 'Gasto';
       Alert.alert('Día inválido', 'Ingresa un día válido (1-31).');
       return;
     }
-    if (isNaN(anoNum) || anoNum < 2020 || anoNum > 2030) {
+    if (isNaN(mesNum) || mesNum < 1 || mesNum > 12) {
+      Alert.alert('Mes inválido', 'Ingresa un mes válido (1-12).');
+      return;
+    }
+    if (isNaN(yearNum) || yearNum < 2020 || yearNum > 2030) {
       Alert.alert('Año inválido', 'Ingresa un año válido (ej: 2024, 2025).');
       return;
     }
@@ -46,13 +52,13 @@ const tipoDeterminado = montoNum > 0 ? 'Ingreso' : 'Gasto';
         monto: montoNum,
         tipo: tipoDeterminado,
         dia: diaNum,
-        mes: mes.trim(),
-        año: anoNum
+        mes: mesNum,
+        year: yearNum,
+        descripcion: descripcion.trim()
       });
 
       if (actualizado) {
-        // Al volver, indicamos a Gestion_de_transacciones que recargue datos
-        navigation.navigate('GestionTransacciones', { refresh: true });
+        navigation.navigate('Gestion_de_transacciones', { refresh: true });
       } else {
         Alert.alert('Error', 'No se pudo actualizar la transacción.');
       }
@@ -66,16 +72,13 @@ const tipoDeterminado = montoNum > 0 ? 'Ingreso' : 'Gasto';
     <SafeAreaView style={styles.container}>
       <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-         
-        </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.goBack()} />
         <Text style={styles.headerTitle}>Editar Transacción</Text>
         <View style={{ width: 24 }} />
       </View>
 
       <ScrollView style={styles.scrollView}>
         <View style={styles.formContainer}>
-          
 
           <Text style={styles.label}>Categoría</Text>
           <View style={styles.inputCard}>
@@ -89,12 +92,18 @@ const tipoDeterminado = montoNum > 0 ? 'Ingreso' : 'Gasto';
             <TextInput style={styles.input} placeholder="Ej: -300 o 500" keyboardType="numeric" value={monto} onChangeText={setMonto}/>
           </View>
 
+          <Text style={styles.label}>Descripción</Text>
+          <View style={styles.inputCard}>
+            <Feather name="file-text" size={20} color="#666" style={styles.inputIcon} />
+            <TextInput style={styles.input} placeholder="Descripción de la transacción" value={descripcion} onChangeText={setDescripcion}/>
+          </View>
+
           <Text style={styles.label}>Fecha</Text>
           <View style={styles.inputCard}>
             <View style={styles.fila}>
               <TextInput style={styles.inputFecha} placeholder="Día" keyboardType="numeric" value={dia} onChangeText={setDia}/>
               <TextInput style={styles.inputFecha} placeholder="Mes" keyboardType="numeric" value={mes} onChangeText={setMes}/>
-              <TextInput style={styles.inputFecha} placeholder="Año" keyboardType="numeric" value={ano} onChangeText={setAno}/>
+              <TextInput style={styles.inputFecha} placeholder="Año" keyboardType="numeric" value={year} onChangeText={setYear}/>
             </View>
           </View>
 
@@ -118,11 +127,6 @@ const styles = StyleSheet.create({
   inputCard: { flexDirection: "row", alignItems: "center", backgroundColor: "#FFFFFF", borderRadius: 12, paddingHorizontal: 16, paddingVertical: 18, shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 2, marginBottom: 10 },
   inputIcon: { marginRight: 12 },
   input: { flex: 1, fontSize: 15, color: "#333" },
-  tipoCont: { flexDirection:'row', marginBottom: 10 },
-  tipoBtn: { flex:1, padding:14, marginHorizontal:5, borderRadius:12, backgroundColor:'#FFFFFF', alignItems:'center', shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 2 },
-  tipoBtnActivo: { backgroundColor:'#33604e' },
-  tipoTxt: { color:'#333', fontWeight:'bold', fontSize: 15 },
-  tipoTxtActivo: { color: '#FFFFFF' },
   fila: { flex:1, flexDirection:'row', justifyContent:'space-between', gap:10 },
   inputFecha: { flex:1, backgroundColor:'#F5F5F5', padding:10, borderRadius:8, textAlign: 'center', fontSize: 15, color: '#333' },
   saveButton: { flexDirection:"row", alignItems:"center", justifyContent:"center", backgroundColor:"#33604E", paddingVertical:16, borderRadius:12, gap:10, marginTop:20 },
