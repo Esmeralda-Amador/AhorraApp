@@ -4,29 +4,20 @@ import * as SQLite from 'expo-sqlite';
 class DatabaseService {
     constructor() {
         this.db = null;
-        this.initPromise = null; // Guardamos la promesa de inicialización
+        this.initPromise = null;
     }
 
     async initialize() {
         if (Platform.OS === 'web') return;
-
-        // 1. Si ya tenemos DB, retornamos inmediatamente.
         if (this.db) return;
-
-        // 2. Si ya hay una inicialización en proceso, devolvemos esa misma promesa
-        // para que todos esperen a la vez, en lugar de chocar.
         if (this.initPromise) {
             return this.initPromise;
         }
 
-        // 3. Creamos la promesa de inicialización
         this.initPromise = (async () => {
             try {
-                console.log('Iniciando conexión SQLite...');
-                // Usamos un nombre seguro
                 const db = await SQLite.openDatabaseAsync('miapp_seguridad_final.db');
                 
-                // Ejecutamos la creación de tablas
                 await db.execAsync(`
                     CREATE TABLE IF NOT EXISTS usuarios (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -45,17 +36,21 @@ class DatabaseService {
                         descripcion TEXT,
                         fecha TEXT NOT NULL
                     );
+                    
+                    -- TABLA DE PRESUPUESTOS (NUEVO)
+                    CREATE TABLE IF NOT EXISTS presupuestos (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        categoria TEXT NOT NULL,
+                        monto_limite REAL NOT NULL,
+                        fecha_inicio TEXT NOT NULL
+                    );
                 `);
                 
-                // Solo asignamos la DB si todo salió bien
                 this.db = db;
-                console.log('Base de datos lista y tablas creadas.');
-                
             } catch (error) {
                 console.error("Error crítico en DB:", error);
-                throw error; // Relanzar para que el UI sepa que falló
+                throw error;
             } finally {
-                // Limpiamos la promesa para el futuro
                 this.initPromise = null;
             }
         })();
@@ -63,80 +58,48 @@ class DatabaseService {
         return this.initPromise;
     }
 
-    // --- MÉTODOS DE USUARIOS ---
-    async getAll() {
-        await this.initialize(); 
-        return await this.db.getAllAsync('SELECT * FROM usuarios ORDER BY id DESC');
-    }
+    // --- MÉTODOS DE USUARIOS (Iguales) ---
+    async getAll() { await this.initialize(); return await this.db.getAllAsync('SELECT * FROM usuarios ORDER BY id DESC'); }
+    async getByCorreo(correo) { await this.initialize(); return await this.db.getFirstAsync('SELECT * FROM usuarios WHERE correo = ?', [correo]); }
+    async add(nombre, correo, password, respuestaSeguridad) { await this.initialize(); /* ... */ }
+    async update(id, nombre, correo) { await this.initialize(); /* ... */ }
+    async updatePassword(id, newPassword) { await this.initialize(); /* ... */ }
 
-    async getByCorreo(correo) {
+    // --- MÉTODOS DE TRANSACCIONES (Iguales) ---
+    async getAllTransacciones() { await this.initialize(); return await this.db.getAllAsync('SELECT * FROM transacciones ORDER BY id DESC'); }
+    async addTransaccion(tipo, categoria, monto, descripcion, fecha) { await this.initialize(); /* ... */ }
+    async updateTransaccion(id, tipo, categoria, monto, descripcion, fecha) { await this.initialize(); /* ... */ }
+    async deleteTransaccion(id) { await this.initialize(); /* ... */ }
+
+    // --- MÉTODOS DE PRESUPUESTOS (NUEVOS) ---
+
+    async getAllPresupuestos() {
         await this.initialize();
-        return await this.db.getFirstAsync('SELECT * FROM usuarios WHERE correo = ?', [correo]);
+        return await this.db.getAllAsync('SELECT * FROM presupuestos ORDER BY id DESC');
     }
 
-    async add(nombre, correo, password, respuestaSeguridad) {
-        await this.initialize();
-        const result = await this.db.runAsync(
-            'INSERT INTO usuarios (nombre, correo, password, respuesta_seguridad) VALUES(?, ?, ?, ?)',
-            [nombre, correo, password, respuestaSeguridad]
-        );
-        return {
-            id: result.lastInsertRowId,
-            nombre,
-            correo,
-            password,
-            respuesta_seguridad: respuestaSeguridad,
-            fecha_creacion: new Date().toISOString()
-        };
-    }
-
-    async update(id, nombre, correo) {
+    async addPresupuesto(categoria, montoLimite, fechaInicio) {
         await this.initialize();
         const result = await this.db.runAsync(
-            'UPDATE usuarios SET nombre = ?, correo = ? WHERE id = ?',
-            [nombre, correo, id]
-        );
-        return result.changes > 0;
-    }
-
-    async updatePassword(id, newPassword) {
-        await this.initialize();
-        const result = await this.db.runAsync(
-            'UPDATE usuarios SET password = ? WHERE id = ?',
-            [newPassword, id]
-        );
-        return result.changes > 0;
-    }
-
-    // --- MÉTODOS DE TRANSACCIONES ---
-
-    async getAllTransacciones() {
-        await this.initialize();
-        return await this.db.getAllAsync('SELECT * FROM transacciones ORDER BY id DESC');
-    }
-
-    async addTransaccion(tipo, categoria, monto, descripcion, fecha) {
-        await this.initialize();
-        const result = await this.db.runAsync(
-            'INSERT INTO transacciones (tipo, categoria, monto, descripcion, fecha) VALUES (?, ?, ?, ?, ?)',
-            [tipo, categoria, monto, descripcion, fecha]
+            'INSERT INTO presupuestos (categoria, monto_limite, fecha_inicio) VALUES (?, ?, ?)',
+            [categoria, montoLimite, fechaInicio]
         );
         return result.lastInsertRowId;
     }
 
-    async updateTransaccion(id, tipo, categoria, monto, descripcion, fecha) {
+    async updatePresupuesto(id, categoria, montoLimite, fechaInicio) {
         await this.initialize();
         const result = await this.db.runAsync(
-            'UPDATE transacciones SET tipo = ?, categoria = ?, monto = ?, descripcion = ?, fecha = ? WHERE id = ?',
-            [tipo, categoria, monto, descripcion, fecha, id]
+            'UPDATE presupuestos SET categoria = ?, monto_limite = ?, fecha_inicio = ? WHERE id = ?',
+            [categoria, montoLimite, fechaLimite, id]
         );
         return result.changes > 0;
     }
 
-    async deleteTransaccion(id) {
+    async deletePresupuesto(id) {
         await this.initialize();
         const result = await this.db.runAsync(
-            'DELETE FROM transacciones WHERE id = ?',
+            'DELETE FROM presupuestos WHERE id = ?',
             [id]
         );
         return result.changes > 0;

@@ -107,7 +107,7 @@ function AppTabs() {
     >
       <Tab.Screen name="Inicio" component={PanelPrincipal} options={{ headerShown: false }} />
       <Tab.Screen name="Transacciones" component={TransaccionesStackScreen} />
-      <Tab.Screen name="Metas" component={Metas} />
+      <Tab.Screen name="Graficas" component={Graficas} />
       <Tab.Screen name="Perfil" component={Perfil} /> 
       
     </Tab.Navigator>

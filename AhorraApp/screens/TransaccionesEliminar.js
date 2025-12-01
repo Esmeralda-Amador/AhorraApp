@@ -1,79 +1,59 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, Alert, SafeAreaView, ScrollView, StatusBar, Platform, TouchableOpacity } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, StatusBar, Platform, TouchableOpacity, Alert } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
+import { transaccionController } from '../controllers/TransaccionController';
 
 export default function TransaccionesEliminar () {
 
-  const [transacciones, setTransacciones] = useState([
-    { id: '1', categoria: 'Mascotas', monto: -500, tipo: 'Gasto' },
-    { id: '2', categoria: 'Wifi', monto: -380, tipo: 'Gasto' },
-    { id: '3', categoria: 'Devolución', monto: 580, tipo: 'Ingreso' },
-  ]);
+  const [transacciones, setTransacciones] = useState([]);
 
-  const handleEliminar = (id) => {
-    Alert.alert(
-      "Eliminar Transacción",
-      "¿Estás seguro de que quieres eliminar esta transacción?",
-      [
-        { text: "Cancelar", style: "cancel" },
-        { 
-          text: "Eliminar", 
-          onPress: () => {
-            setTransacciones(actuales => 
-              actuales.filter(trans => trans.id !== id)
-            );
-          }, 
-          style: "destructive" 
-        }
-      ]
-    );
+  useFocusEffect(
+    useCallback(() => {
+        cargarDatos();
+    }, [])
+  );
+
+  const cargarDatos = async () => {
+      const data = await transaccionController.obtenerTodas();
+      setTransacciones(data);
   };
 
-  const getIconName = (categoria) => {
-    if (categoria === 'Mascotas') return 'heart';
-    if (categoria === 'Wifi') return 'wifi';
-    if (categoria === 'Devolución') return 'corner-up-left';
-    return 'tag';
+  const handleEliminar = (id) => {
+      Alert.alert("Confirmar", "¿Eliminar definitivamente?", [
+          { text: "Cancelar" },
+          { 
+              text: "Eliminar", 
+              onPress: async () => {
+                  await transaccionController.eliminar(id);
+                  cargarDatos(); 
+              }
+          }
+      ]);
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
-      
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => console.log("Volver")}>
-          <Feather name="arrow-left" size={24} color="#33604E" />
-        </TouchableOpacity>
         <Text style={styles.headerTitle}>Eliminar Transacción</Text>
-        <View style={{ width: 24 }} />
       </View>
-
       <ScrollView style={styles.scrollView}>
         <View style={styles.listContainer}>
           {transacciones.map((item) => (
             <View key={item.id} style={styles.itemCard}>
-              <Feather 
-                name={getIconName(item.categoria)} 
-                size={20} 
-                color="#33604E" 
-                style={styles.itemIcon} 
-              />
               <View style={styles.itemInfo}>
                 <Text style={styles.itemCategoria}>{item.categoria}</Text>
-                <Text style={[
-                  styles.itemMonto, 
-                  { color: item.monto > 0 ? '#108043' : '#FF3B30' }
-                ]}>
-                  ${item.monto}
+                <Text style={[styles.itemMonto, { color: item.tipo === 'Ingreso' ? 'green' : 'red' }]}>
+                  ${Math.abs(item.monto)}
                 </Text>
               </View>
-              
               <TouchableOpacity style={styles.deleteButton} onPress={() => handleEliminar(item.id)}>
                 <Text style={styles.deleteButtonText}>Eliminar</Text>
               </TouchableOpacity>
-
             </View>
           ))}
+          {transacciones.length === 0 && <Text style={{textAlign:'center', color:'#999'}}>Vacío.</Text>}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -81,72 +61,15 @@ export default function TransaccionesEliminar () {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#FFFFFF",
-  },
-  scrollView: {
-    flex: 1,
-    backgroundColor: "#E7E7E7",
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-    backgroundColor: "#FFFFFF",
-    paddingBottom: 15,
-    paddingTop: 15 + (Platform.OS === "android" ? StatusBar.currentHeight : 0),
-    borderBottomWidth: 1,
-    borderBottomColor: "#F0F0F0",
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-    color: "#333",
-  },
-  listContainer: {
-    padding: 20,
-    gap: 16,
-    paddingBottom: 40,
-  },
-  itemCard: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 18,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  itemIcon: {
-    marginRight: 12,
-  },
-  itemInfo: {
-    flex: 1,
-  },
-  itemCategoria: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-  },
-  itemMonto: {
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  deleteButton: {
-    backgroundColor: '#FF3B30',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-  },
-  deleteButtonText: {
-    color: '#FFFFFF',
-    fontWeight: '600',
-    fontSize: 12,
-  }
+  container: { flex: 1, backgroundColor: "#FFFFFF" },
+  scrollView: { flex: 1, backgroundColor: "#E7E7E7" },
+  header: { alignItems: "center", padding: 20, backgroundColor: "#FFFFFF", paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight + 10 : 20 },
+  headerTitle: { fontSize: 20, fontWeight: "600", color: "#333" },
+  listContainer: { padding: 20, gap: 16 },
+  itemCard: { flexDirection: "row", alignItems: "center", backgroundColor: "#FFFFFF", borderRadius: 12, padding: 16, elevation: 2 },
+  itemInfo: { flex: 1 },
+  itemCategoria: { fontSize: 16, fontWeight: '600', color: '#333' },
+  itemMonto: { fontSize: 14, fontWeight: '500' },
+  deleteButton: { backgroundColor: '#FF3B30', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20 },
+  deleteButtonText: { color: '#FFFFFF', fontWeight: '600', fontSize: 12 }
 });
