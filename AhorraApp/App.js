@@ -6,7 +6,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { Feather } from '@expo/vector-icons';
 
-// Importaciones de Pantallas
+
 import InicioSesion from './screens/InicioSesion';
 import Registro from './screens/Registro';
 import OlvidarPassword from './screens/OlvidarContrasena';
@@ -27,8 +27,14 @@ import Presupuestos_Mensuales from './screens/Presupuestos_Mensuales';
 import TransaccionesEditar from './screens/TransaccionesEditar';
 import TransaccionesEliminar from './screens/TransaccionesEliminar';
 import TransaccionesAgregar from './screens/TransaccionesAgregar';  
-
-
+import MetasAgregar from './screens/MetasAgregar';
+import MetasEditar from './screens/MetasEditar';
+import MetasEliminar from './screens/MetasEliminar';  
+import PresupuestosEliminar from './screens/PresupuestosEliminar';
+import PresupuestosAgregar from './screens/PresupuestosAgregar';
+import PresupuestosEditar from './screens/PresupuestosEditar';  
+import RestablecerPassword from './screens/RestablecerPassword';
+import Graficas from './screens/Graficas';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -66,7 +72,7 @@ function TransaccionesStackScreen() {
   );
 }
 
-// 1. AppTabs: Define el Navegador de Pestañas Inferiores
+
 function AppTabs() {
   return (
     <Tab.Navigator
@@ -103,11 +109,12 @@ function AppTabs() {
       <Tab.Screen name="Transacciones" component={TransaccionesStackScreen} />
       <Tab.Screen name="Metas" component={Metas} />
       <Tab.Screen name="Perfil" component={Perfil} /> 
+      
     </Tab.Navigator>
   );
 }
 
-// 2. MainDrawer: Define el Navegador de Menú Lateral
+
 function MainDrawer() {
   return (
     <Drawer.Navigator
@@ -120,15 +127,15 @@ function MainDrawer() {
         drawerType: 'front'
       }}
     >
-      {/* RUTA PRINCIPAL: El AppTabs contiene Inicio, Perfil, Metas, Transacciones */}
+
       <Drawer.Screen 
         name="TabStack" 
         component={AppTabs} 
-        // Ocultamos el título del Drawer para esta ruta principal
+
         options={{ title: 'Inicio', headerShown: false }}
       />
 
-      {/* RUTAS ADICIONALES DEL DRAWER (que no están en las Tabs) */}
+ 
       <Drawer.Screen name="Panel" component={PanelPrincipal} />
       <Drawer.Screen name="Perfil" component={Perfil} />
       <Drawer.Screen name="Transacciones" component={Gestion_de_transacciones} />
@@ -136,10 +143,8 @@ function MainDrawer() {
       <Drawer.Screen name="Presupuestos" component={Presupuestos_Mensuales} />
       <Drawer.Screen name="Configuracion" component={Configuracion} />
       <Drawer.Screen name="Soporte" component={Soporte} />
-      
-      {/* NOTA: Eliminamos las rutas duplicadas (Panel, PerfilDrawer, etc.) que causaban conflicto.
-          Si quieres acceder a ellas desde el Drawer, DEBES navegar a 'TabStack' y luego a la pantalla interna.
-      */}
+      <Drawer.Screen name="Graficas" component={Graficas} />
+  
     </Drawer.Navigator>
   );
 }
@@ -149,16 +154,15 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="InicioSesion" screenOptions={{ headerShown: false }}>
-        {/* Rutas de Autenticación */}
+
         <Stack.Screen name="InicioSesion" component={InicioSesion} />
         <Stack.Screen name="Registro" component={Registro} />
         <Stack.Screen name="OlvidarPassword" component={OlvidarPassword} />
         <Stack.Screen name="CerrandoSesion" component={CerrandoSesion} />
+        <Stack.Screen name="RestablecerPassword" component={RestablecerPassword} />
 
-        {/* Ruta principal de la aplicación: el Drawer que contiene las Tabs */}
         <Stack.Screen name="MainApp" component={MainDrawer} />
 
-        {/* Rutas Modales y de Detalle (sin Tabs ni Drawer) */}
         <Stack.Screen name="Notificaciones" component={Notificaciones} />
         <Stack.Screen name="ConfigEditarMoneda" component={ConfigEditarMoneda} />
         <Stack.Screen name="ConfigEditarContrasena" component={ConfigEditarContrasena} />
@@ -169,8 +173,15 @@ export default function App() {
         />
         <Stack.Screen name="PerfilTarjetas" component={PerfilTarjetas} />
         
-        {/* Agregando una ruta adicional que eliminaste por error, si es necesaria */}
+
         <Stack.Screen name="Presupuestos_Mensuales" component={Presupuestos_Mensuales} />
+        <Stack.Screen name="PresupuestosEliminar" component={PresupuestosEliminar} />
+        <Stack.Screen name="PresupuestosAgregar" component={PresupuestosAgregar} />
+        <Stack.Screen name="PresupuestosEditar" component={PresupuestosEditar} />
+
+        <Stack.Screen name="MetasAgregar" component={MetasAgregar} />
+        <Stack.Screen name="MetasEditar" component={MetasEditar} />
+        <Stack.Screen name="MetasEliminar" component={MetasEliminar} />
 
       </Stack.Navigator>
     </NavigationContainer>

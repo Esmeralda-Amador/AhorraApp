@@ -1,65 +1,51 @@
-
-
-
-import React, { useState } from "react"
-import { View, Text, StyleSheet, SafeAreaView, TextInput, TouchableOpacity, StatusBar, Alert } from "react-native"
-import { Feather } from "@expo/vector-icons"
+import React, { useState } from "react";
+import { View, Text, StyleSheet, SafeAreaView, TextInput, TouchableOpacity, StatusBar, Alert } from "react-native";
+import { Feather } from "@expo/vector-icons";
+import { usuarioController } from '../controllers/UsuarioController'; 
 
 export default function OlvidarContrasena({navigation}) {
-  const [email, setEmail] = useState("")
+  const [email, setEmail] = useState("");
+  const [respuesta, setRespuesta] = useState(""); // Nuevo estado
+  const [isChecking, setIsChecking] = useState(false);
 
-  // Función para manejar el envío del código
-  const handleEnviarCodigo = () => {
-    // 1. Validación RegEx (Expresión Regular) para un email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    const emailLimpio = email.trim()
-
-    if (!emailLimpio) {
-      Alert.alert("Campo vacío", "Por favor, ingresa tu correo electrónico.")
-      return
+  const handleVerificar = async () => {
+    if (!email.trim() || !respuesta.trim()) {
+      Alert.alert("Campos vacíos", "Ingresa tu correo y la respuesta de seguridad.");
+      return;
     }
 
-    if (!emailRegex.test(emailLimpio)) {
-      Alert.alert(
-        "Correo inválido",
-        "Por favor, ingresa un formato de correo válido."
-      )
-      return
-    }
+    setIsChecking(true);
+    try {
+        await usuarioController.initialize();
+        // Verificamos. Si es correcto, nos devuelve el ID del usuario.
+        const userId = await usuarioController.verificarSeguridad(email, respuesta);
+        
+        Alert.alert("¡Correcto!", "Tu identidad ha sido verificada.");
+        
+        // Navegamos a la pantalla de cambio de contraseña enviando el ID
+        navigation.navigate("RestablecerPassword", { userId: userId });
 
-    // 2. Alerta de éxito (como pediste)
-    Alert.alert(
-      "¡Revisa tu correo!",
-      "Se ha enviado un código de recuperación a tu bandeja de entrada.",
-      [{ text: "OK", onPress: () => navigation.navigate("InicioSesion") }]
-    )
+    } catch (error) {
+        Alert.alert("Error", error.message);
+    } finally {
+        setIsChecking(false);
+    }
   }
 
   return (
-    // 1. Contenedor principal con fondo verde
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" />
-
-      {/* Contenedor para centrar la tarjeta */}
       <View style={styles.innerContainer}>
-        {/* 2. Tarjeta blanca */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>¿Olvidaste tu contraseña?</Text>
-          <Text style={styles.cardSubtitle}>
-            Ingresa tu correo y te enviaremos un código.
-          </Text>
+          <Text style={styles.cardTitle}>Recuperar Cuenta</Text>
+          <Text style={styles.cardSubtitle}>Responde tu pregunta de seguridad para restablecer tu contraseña.</Text>
 
-          {/* 3. El TextInput para el correo */}
+          {/* Input Correo */}
           <View style={styles.inputCard}>
-            <Feather
-              name="mail"
-              size={20}
-              color="#666"
-              style={styles.inputIcon}
-            />
+            <Feather name="mail" size={20} color="#666" style={styles.inputIcon} />
             <TextInput
               style={styles.input}
-              placeholder="Tu correo electrónico"
+              placeholder="Tu correo registrado"
               placeholderTextColor="#999"
               value={email}
               onChangeText={setEmail}
@@ -68,12 +54,25 @@ export default function OlvidarContrasena({navigation}) {
             />
           </View>
 
-          {/* Botón para enviar */}
-          <TouchableOpacity
-            style={styles.sendButton}
-            onPress={handleEnviarCodigo}
-          >
-            <Text style={styles.sendButtonText}>Enviar Código</Text>
+          {/* Input Respuesta Seguridad */}
+          <Text style={styles.securityQuestion}>¿Nombre de tu primera mascota?</Text>
+          <View style={styles.inputCard}>
+            <Feather name="shield" size={20} color="#666" style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              placeholder="Tu respuesta secreta"
+              placeholderTextColor="#999"
+              value={respuesta}
+              onChangeText={setRespuesta}
+            />
+          </View>
+
+          <TouchableOpacity style={styles.sendButton} onPress={handleVerificar}>
+            <Text style={styles.sendButtonText}>{isChecking ? 'Verificando...' : 'Verificar'}</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity onPress={() => navigation.goBack()} style={{marginTop: 15}}>
+             <Text style={{color: '#33604E'}}>Volver al inicio</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -81,71 +80,17 @@ export default function OlvidarContrasena({navigation}) {
   )
 }
 
-// Estilos del componente
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#33604E", // <-- 1. FONDO VERDE
-  },
-  innerContainer: {
-    flex: 1,
-    justifyContent: "center", // Centra la tarjeta verticalmente
-    alignItems: "center", // Centra la tarjeta horizontalmente
-    padding: 20,
-  },
-  card: {
-    width: "100%",
-    backgroundColor: "#FFFFFF", // <-- 2. TARJETA BLANCA
-    borderRadius: 16,
-    padding: 24,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 10,
-    alignItems: "center",
-    gap: 16, // Añadido 'gap' para espaciar todo dentro de la tarjeta
-  },
-  cardTitle: {
-    fontSize: 22,
-    fontWeight: "700",
-    color: "#333",
-    textAlign: "center",
-  },
-  cardSubtitle: {
-    fontSize: 15,
-    color: "#666",
-    textAlign: "center",
-  },
-  inputCard: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#F5F5F5",
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    width: "100%", // Ocupa todo el ancho de la tarjeta
-  },
-  inputIcon: {
-    marginRight: 12,
-  },
-  input: {
-    flex: 1,
-    fontSize: 15,
-    color: "#333",
-  },
-  sendButton: {
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#33604E", // Botón verde
-    paddingVertical: 16,
-    borderRadius: 12,
-    width: "100%",
-    marginTop: 8, // Pequeño margen superior
-  },
-  sendButtonText: {
-    color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-})
+  // ... Usa los mismos estilos que tenías, agrega este:
+  container: { flex: 1, backgroundColor: "#33604E" },
+  innerContainer: { flex: 1, justifyContent: "center", alignItems: "center", padding: 20 },
+  card: { width: "100%", backgroundColor: "#FFFFFF", borderRadius: 16, padding: 24, alignItems: "center", gap: 16, elevation: 10 },
+  cardTitle: { fontSize: 22, fontWeight: "700", color: "#333" },
+  cardSubtitle: { fontSize: 14, color: "#666", textAlign: "center", marginBottom: 10 },
+  inputCard: { flexDirection: "row", alignItems: "center", backgroundColor: "#F5F5F5", borderRadius: 12, paddingHorizontal: 16, height: 50, width: "100%" },
+  inputIcon: { marginRight: 12 },
+  input: { flex: 1, fontSize: 15, color: "#333" },
+  securityQuestion: { alignSelf: 'flex-start', marginLeft: 5, fontWeight: '600', color: '#33604E', marginBottom: -10, marginTop: 5 },
+  sendButton: { backgroundColor: "#33604E", paddingVertical: 15, borderRadius: 12, width: "100%", marginTop: 10, alignItems: 'center' },
+  sendButtonText: { color: "#FFFFFF", fontSize: 16, fontWeight: "600" },
+});

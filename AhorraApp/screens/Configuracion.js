@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, StatusBar, Platform, Switch, Alert, Modal } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, StatusBar, Platform, Switch, Modal } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 
 export default function Configuracion({ navigation }) {
 
   const [notificaciones, setNotificaciones] = useState(true);
-  const [modalVisible, setModalVisible] = useState(false); // Estado para el Modal
+  const [modalVisible, setModalVisible] = useState(false); 
 
-  // Componente de Fila de Configuración
   const ConfigOption = ({ icon, label, onPress, value, onValueChange, isSwitch, isDestructive }) => (
     <TouchableOpacity 
       style={styles.optionRow} 
@@ -59,8 +58,6 @@ export default function Configuracion({ navigation }) {
                     2. Privacidad: Tus datos están encriptados y no se comparten con terceros sin tu consentimiento.
                     {'\n\n'}
                     3. Responsabilidad: La aplicación es una herramienta de ayuda y no garantiza resultados financieros específicos.
-                    {'\n\n'}
-                    (Este es un texto de ejemplo para mostrar el funcionamiento del modal).
                 </Text>
             </ScrollView>
             <TouchableOpacity style={styles.modalButton} onPress={() => setModalVisible(false)}>
@@ -70,7 +67,7 @@ export default function Configuracion({ navigation }) {
         </View>
       </Modal>
 
-      {/* --- HEADER FUNCIONAL --- */}
+      {/* --- HEADER --- */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerButton}>
             <Feather name="arrow-left" size={26} color="#33604E" />
@@ -81,7 +78,7 @@ export default function Configuracion({ navigation }) {
 
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         
-        {/* SECCIÓN 1: GENERAL */}
+        {/* SECCIÓN 1: GENERAL (Sin Moneda) */}
         <View style={styles.sectionContainer}>
             <Text style={styles.sectionTitle}>General</Text>
             <View style={styles.card}>
@@ -92,12 +89,7 @@ export default function Configuracion({ navigation }) {
                     value={notificaciones}
                     onValueChange={setNotificaciones}
                 />
-                 <View style={styles.separator} />
-                 <ConfigOption 
-                    icon="dollar-sign" 
-                    label="Moneda Principal (MXN)" 
-                    onPress={() => navigation.navigate('ConfigEditarMoneda')}
-                />
+                {/* Se eliminó la opción de moneda y el separador */}
             </View>
         </View>
 
@@ -126,12 +118,12 @@ export default function Configuracion({ navigation }) {
                 <ConfigOption 
                     icon="file-text" 
                     label="Términos y Condiciones" 
-                    onPress={() => setModalVisible(true)} // ABRE EL MODAL
+                    onPress={() => setModalVisible(true)} 
                 />
             </View>
         </View>
 
-        {/* --- NUEVO DISEÑO DE CERRAR SESIÓN --- */}
+        {/* LOGOUT */}
         <View style={styles.logoutContainer}>
             <TouchableOpacity 
                 style={styles.logoutButton} 
@@ -152,7 +144,6 @@ export default function Configuracion({ navigation }) {
 const STATUS_BAR_HEIGHT = Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : 0;
 
 const styles = StyleSheet.create({
-  // MODAL STYLES
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)',
@@ -197,8 +188,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
   },
-
-  // MAIN STYLES
   container: {
     flex: 1,
     backgroundColor: "#F5F5F5",
@@ -226,7 +215,6 @@ const styles = StyleSheet.create({
     width: 40, 
     alignItems: 'flex-start' 
   },
-  
   sectionContainer: {
     paddingHorizontal: 20,
     marginBottom: 20,
@@ -260,7 +248,7 @@ const styles = StyleSheet.create({
     width: 35,
     height: 35,
     borderRadius: 8,
-    backgroundColor: '#F0F9F4', // Fondo verde muy suave para los iconos
+    backgroundColor: '#F0F9F4',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
@@ -277,8 +265,6 @@ const styles = StyleSheet.create({
     marginLeft: 60, 
     marginRight: 20,
   },
-  
-  // LOGOUT STYLES MEJORADOS
   logoutContainer: {
     marginTop: 20,
     paddingHorizontal: 20,
