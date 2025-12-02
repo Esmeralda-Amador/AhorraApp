@@ -1,50 +1,59 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, SafeAreaView, ScrollView, StatusBar, Platform } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import { presupuestoController } from '../controllers/PresupuestoController';
 
-export default function PresupuestoEditar() {
+// Función auxiliar para parsear fechas
+const parseDateParts = (dateStr) => {
+    if (!dateStr) return { day: '', month: '', year: '' };
+    const parts = dateStr.split(' / ');
+    return { day: parts[0], month: parts[1], year: parts[2] };
+};
 
-  const [categoria, setCategoria] = useState('Despensa');
-  const [monto, setMonto] = useState('300');
-  const [dia, setDia] = useState('01');
-  const [mes, setMes] = useState('Oct');
-  const [ano, setAno] = useState('2025');
 
-  const handleGuardarCambios = () => {
+export default function PresupuestosEditar({navigation, route}) {
+
+  // Obtener Presupuesto del router
+  const presupuesto = route.params?.presupuesto;
+
+  // Cargar datos en el estado
+  const [categoria, setCategoria] = useState(presupuesto?.categoria || '');
+  const [monto, setMonto] = useState(presupuesto ? presupuesto.montoLimite.toString() : '');
+  
+  const fecha = parseDateParts(presupuesto?.fechaInicio);
+  const [dia, setDia] = useState(fecha.day);
+  const [mes, setMes] = useState(fecha.month);
+  const [ano, setAno] = useState(fecha.year);
+
+  const handleGuardarCambios = async () => {
     const catLimpia = categoria.trim();
     const montoLimpio = monto.trim();
     const diaLimpio = dia.trim();
     const mesLimpio = mes.trim();
     const anoLimpio = ano.trim();
 
-    if (!catLimpia || !montoLimpio || !diaLimpio || !mesLimpio || !anoLimpio) {
-      Alert.alert('Campos Incompletos', 'Por favor, rellena todos los campos.');
+    if (!catLimpia || !montoLimpio || !diaLimpia || !mesLimpia || !anoLimpio) {
+      Alert.alert('Campos Incompletos', 'Rellena todos los campos.');
       return;
     }
+    
+    try {
+        await presupuestoController.actualizar(
+            presupuesto.id,
+            catLimpia,
+            montoLimpio,
+            diaLimpio,
+            mesLimpio,
+            anoLimpio
+        );
 
-    const montoNum = parseFloat(montoLimpio);
-    if (isNaN(montoNum) || montoNum <= 0) {
-      Alert.alert('Monto Inválido', 'El monto debe ser un número mayor a cero.');
-      return;
+        Alert.alert("¡Actualizado!", "Presupuesto guardado.", [
+            { text: "OK", onPress: () => navigation.goBack() }
+        ]);
+        
+    } catch (error) {
+        Alert.alert('Error', error.message);
     }
-
-    const diaNum = parseInt(diaLimpio, 10);
-    if (isNaN(diaNum) || diaNum < 1 || diaNum > 31) {
-      Alert.alert('Día Inválido', 'Por favor, ingresa un día válido (1-31).');
-      return;
-    }
-
-    const anoNum = parseInt(anoLimpio, 10);
-    if (isNaN(anoNum) || anoNum < 2020 || anoNum > 2030) {
-      Alert.alert('Año Inválido', 'Por favor, ingresa un año válido (ej: 2024).');
-      return;
-    }
-
-    Alert.alert(
-      "¡Actualizado!",
-      `El presupuesto ha sido actualizado:\nCategoría: ${catLimpia}\nMonto: $${montoNum}\nFecha: ${diaNum}/${mesLimpio}/${anoNum}`,
-      [{ text: "OK" }]
-    );
   };
 
   return (
@@ -52,7 +61,7 @@ export default function PresupuestoEditar() {
       <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
       
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => console.log("Volver")}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
           <Feather name="arrow-left" size={24} color="#33604E" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Editar Presupuesto</Text>
