@@ -1,134 +1,89 @@
-import React, { useState } from 'react';
-import { 
-  View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, 
-  SafeAreaView, ScrollView, StatusBar, Platform 
-} from 'react-native';
-import { Feather } from '@expo/vector-icons';
+// TransaccionesEditar.js
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import DatabaseService from '../database/DatabaseService';
 
 export default function TransaccionesEditar({ route, navigation }) {
-  const item = route?.params?.item || {};
+  const { id } = route.params;
+  const [loaded, setLoaded] = useState(false);
+  const [categoria, setCategoria] = useState('');
+  const [monto, setMonto] = useState('');
+  const [descripcion, setDescripcion] = useState('');
+  const [dia, setDia] = useState('');
+  const [mes, setMes] = useState('');
+  const [year, setYear] = useState('');
 
-  const [categoria, setCategoria] = useState(item.categoria || '');
-  const [monto, setMonto] = useState(item.monto !== undefined ? item.monto.toString() : '');
-  const [dia, setDia] = useState(item.dia !== undefined ? item.dia.toString() : '');
-  const [mes, setMes] = useState(item.mes !== undefined ? item.mes.toString() : '');
-  const [year, setYear] = useState(item.year !== undefined ? item.year.toString() : '');
-  const [descripcion, setDescripcion] = useState(item.descripcion || '');
+  useEffect(() => {
+    (async () => {
+      const all = await DatabaseService.getAll();
+      const item = all.find(t => Number(t.id) === Number(id));
+      if (!item) {
+        Alert.alert("Error", "Transacción no encontrada");
+        navigation.goBack();
+        return;
+      }
+      setCategoria(item.categoria);
+      setMonto(String(item.monto));
+      setDescripcion(item.descripcion || "");
+      setDia(String(item.dia));
+      setMes(String(item.mes));
+      setYear(String(item.year));
+      setLoaded(true);
+    })();
+  }, [id]);
 
-  const handleGuardarCambios = async () => {
-    if (!categoria.trim() || !monto.trim() || !dia.trim() || !mes.trim() || !year.trim()) {
-      Alert.alert('Campos incompletos', 'Por favor, completa todos los campos.');
-      return;
-    }
-
-    const montoNum = parseFloat(monto);
-    const diaNum = parseInt(dia, 10);
-    const mesNum = parseInt(mes, 10);
-    const yearNum = parseInt(year, 10);
-
-    const tipoDeterminado = montoNum > 0 ? 'Ingreso' : 'Gasto';
-
-    if (isNaN(montoNum) || montoNum === 0) {
-      Alert.alert('Monto inválido', 'El monto debe ser un número distinto de cero.');
-      return;
-    }
-    if (isNaN(diaNum) || diaNum < 1 || diaNum > 31) {
-      Alert.alert('Día inválido', 'Ingresa un día válido (1-31).');
-      return;
-    }
-    if (isNaN(mesNum) || mesNum < 1 || mesNum > 12) {
-      Alert.alert('Mes inválido', 'Ingresa un mes válido (1-12).');
-      return;
-    }
-    if (isNaN(yearNum) || yearNum < 2020 || yearNum > 2030) {
-      Alert.alert('Año inválido', 'Ingresa un año válido (ej: 2024, 2025).');
-      return;
-    }
+  const guardar = async () => {
+    const m = Number(monto);
+    if (isNaN(m)) { Alert.alert("Error", "Monto inválido"); return; }
 
     try {
-      const actualizado = await DatabaseService.update(item.id, {
-        categoria: categoria.trim(),
-        monto: montoNum,
-        tipo: tipoDeterminado,
-        dia: diaNum,
-        mes: mesNum,
-        year: yearNum,
-        descripcion: descripcion.trim()
+      const ok = await DatabaseService.update(id, {
+        categoria,
+        monto: m,
+        descripcion,
+        dia: Number(dia),
+        mes: Number(mes),
+        year: Number(year),
+        tipo: m >= 0 ? 'Ingreso' : 'Gasto'
       });
-
-      if (actualizado) {
-        navigation.navigate('Gestion_de_transacciones', { refresh: true });
-      } else {
-        Alert.alert('Error', 'No se pudo actualizar la transacción.');
-      }
-    } catch (error) {
-      console.log(error);
-      Alert.alert('Error', 'Ocurrió un error al actualizar la transacción.');
+      if (ok) navigation.goBack();
+      else Alert.alert("Error", "No se pudo actualizar");
+    } catch (e) {
+      console.log("Error al actualizar:", e);
+      Alert.alert("Error", "No se pudo actualizar la transacción.");
     }
   };
 
+  if (!loaded) return <View style={{ flex:1, justifyContent:'center', alignItems:'center' }}><Text>Cargando...</Text></View>;
+
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} />
-        <Text style={styles.headerTitle}>Editar Transacción</Text>
-        <View style={{ width: 24 }} />
+    <View style={styles.container}>
+      <Text style={styles.label}>Categoría</Text>
+      <TextInput value={categoria} onChangeText={setCategoria} style={styles.input} />
+
+      <Text style={styles.label}>Monto</Text>
+      <TextInput value={monto} onChangeText={setMonto} style={styles.input} keyboardType="numeric" />
+
+      <Text style={styles.label}>Descripción</Text>
+      <TextInput value={descripcion} onChangeText={setDescripcion} style={styles.input} />
+
+      <Text style={styles.label}>Fecha (día / mes / año)</Text>
+      <View style={{ flexDirection: 'row', gap: 8 }}>
+        <TextInput value={dia} onChangeText={setDia} style={[styles.input, { flex: 1 }]} keyboardType="numeric" />
+        <TextInput value={mes} onChangeText={setMes} style={[styles.input, { flex: 1 }]} keyboardType="numeric" />
+        <TextInput value={year} onChangeText={setYear} style={[styles.input, { flex: 1 }]} keyboardType="numeric" />
       </View>
 
-      <ScrollView style={styles.scrollView}>
-        <View style={styles.formContainer}>
-
-          <Text style={styles.label}>Categoría</Text>
-          <View style={styles.inputCard}>
-            <Feather name="tag" size={20} color="#666" style={styles.inputIcon} />
-            <TextInput style={styles.input} placeholder="Ej: Wifi, Mascotas, etc" value={categoria} onChangeText={setCategoria}/>
-          </View>
-
-          <Text style={styles.label}>Monto</Text>
-          <View style={styles.inputCard}>
-            <Feather name="dollar-sign" size={20} color="#666" style={styles.inputIcon} />
-            <TextInput style={styles.input} placeholder="Ej: -300 o 500" keyboardType="numeric" value={monto} onChangeText={setMonto}/>
-          </View>
-
-          <Text style={styles.label}>Descripción</Text>
-          <View style={styles.inputCard}>
-            <Feather name="file-text" size={20} color="#666" style={styles.inputIcon} />
-            <TextInput style={styles.input} placeholder="Descripción de la transacción" value={descripcion} onChangeText={setDescripcion}/>
-          </View>
-
-          <Text style={styles.label}>Fecha</Text>
-          <View style={styles.inputCard}>
-            <View style={styles.fila}>
-              <TextInput style={styles.inputFecha} placeholder="Día" keyboardType="numeric" value={dia} onChangeText={setDia}/>
-              <TextInput style={styles.inputFecha} placeholder="Mes" keyboardType="numeric" value={mes} onChangeText={setMes}/>
-              <TextInput style={styles.inputFecha} placeholder="Año" keyboardType="numeric" value={year} onChangeText={setYear}/>
-            </View>
-          </View>
-
-          <TouchableOpacity style={styles.saveButton} onPress={handleGuardarCambios}>
-            <Feather name="check-circle" size={24} color="#FFFFFF" />
-            <Text style={styles.saveButtonText}>Guardar Cambios</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+      <TouchableOpacity style={styles.saveBtn} onPress={guardar}>
+        <Text style={{ color: '#fff', fontWeight: '700' }}>Guardar cambios</Text>
+      </TouchableOpacity>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#FFFFFF" },
-  scrollView: { flex: 1, backgroundColor: "#E7E7E7" },
-  header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 20, backgroundColor: "#FFFFFF", paddingBottom: 15, paddingTop: 15 + (Platform.OS === "android" ? StatusBar.currentHeight : 0), borderBottomWidth: 1, borderBottomColor: "#F0F0F0" },
-  headerTitle: { fontSize: 20, fontWeight: "600", color: "#333" },
-  formContainer: { padding: 20, gap: 16, paddingBottom: 40 },
-  label: { fontSize: 15, fontWeight: '600', color: '#333', marginBottom: -8 },
-  inputCard: { flexDirection: "row", alignItems: "center", backgroundColor: "#FFFFFF", borderRadius: 12, paddingHorizontal: 16, paddingVertical: 18, shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 2, marginBottom: 10 },
-  inputIcon: { marginRight: 12 },
-  input: { flex: 1, fontSize: 15, color: "#333" },
-  fila: { flex:1, flexDirection:'row', justifyContent:'space-between', gap:10 },
-  inputFecha: { flex:1, backgroundColor:'#F5F5F5', padding:10, borderRadius:8, textAlign: 'center', fontSize: 15, color: '#333' },
-  saveButton: { flexDirection:"row", alignItems:"center", justifyContent:"center", backgroundColor:"#33604E", paddingVertical:16, borderRadius:12, gap:10, marginTop:20 },
-  saveButtonText: { color:"#FFFFFF", fontSize:16, fontWeight:"600" }
+  container: { flex:1, padding: 16, backgroundColor: '#F4F7F6' },
+  label: { marginTop: 12, color: '#333', fontWeight: '600' },
+  input: { backgroundColor: '#fff', padding: 10, borderRadius: 8, marginTop: 8, borderWidth: 1, borderColor: '#e6e6e6' },
+  saveBtn: { marginTop: 20, backgroundColor: '#33604e', padding: 12, borderRadius: 10, alignItems: 'center' },
 });

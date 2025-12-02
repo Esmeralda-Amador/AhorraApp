@@ -2,250 +2,201 @@
 import React, { useState, useCallback } from 'react';
 import { 
   View, Text, TouchableOpacity, SectionList, StyleSheet, TextInput, 
-  SafeAreaView, StatusBar, Platform, Alert, Button
+  SafeAreaView, StatusBar, Platform, Alert,Button,
 } from 'react-native';
 import { Feather } from "@expo/vector-icons";
 import { useFocusEffect } from '@react-navigation/native';
 import DatabaseService from '../database/DatabaseService';
 
 export default function Gestion_de_transacciones({ navigation }) {
+
   const [filtro, setFiltro] = useState('Todos');
   const [searchText, setSearchText] = useState('');
   const [transacciones, setTransacciones] = useState([]);
-  const [fechaInicio, setFechaInicio] = useState('');
-  const [fechaFin, setFechaFin] = useState('');
 
-  // Inicializar DB y cargar transacciones
-  const cargarTransacciones = async () => {
+  // === CARGAR TRANSACCIONES ===
+  const load = async () => {
     try {
-      await DatabaseService.initialize();
-      let data = [];
-
-      // Si hay rango de fechas, usar getByDateRange
-      if (fechaInicio && fechaFin) {
-        const startParts = fechaInicio.split('-').map(Number);
-        const endParts = fechaFin.split('-').map(Number);
-        data = await DatabaseService.getByDateRange({
-          startDate: { year: startParts[0], mes: startParts[1], dia: startParts[2] },
-          endDate: { year: endParts[0], mes: endParts[1], dia: endParts[2] }
-        });
-      } else {
-        data = await DatabaseService.getALL();
-      }
-
+      const data = await DatabaseService.getAll();
       setTransacciones(data);
-    } catch (error) {
-      console.log("Error al cargar datos:", error);
-      Alert.alert("Error", "No se pudieron cargar las transacciones.");
+    } catch (e) {
+      console.log("Error al cargar transacciones:", e);
     }
   };
 
-  // ===== Cargar transacciones cada vez que la pantalla se enfoque =====
   useFocusEffect(
-    useCallback(() => {
-      cargarTransacciones();
-    }, [fechaInicio, fechaFin])
+    useCallback(() => { load(); }, [])
   );
 
-  // Transformar datos de DB → formato SectionList
-  const datos = transacciones.map(t => ({
-    id: t.id.toString(),
-    categoria: t.categoria,
-    monto: t.monto,
-    tipo: t.tipo,
-    descripcion: t.descripcion || '',
-    fecha: `${t.dia} / ${t.mes} / ${t.year}`,
-  }));
+  // === ELIMINAR TRANSACCIÓN ===
+  const confirmarEliminar = (id) => {
+    Alert.alert(
+      "Eliminar",
+      "¿Deseas eliminar esta transacción?",
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Eliminar",
+          style: "destructive",
+          onPress: async () => {
+            const ok = await DatabaseService.remove(id);
+            if (ok) load();
+          }
+        }
+      ]
+    );
+  };
 
-  const prepararDatos = () => {
-    let datosFiltrados = filtro === 'Todos' 
-      ? datos 
-      : datos.filter(item => item.tipo === filtro);
+  // === CONVERTIR DATOS A FORMATO DEL SECTIONLIST ===
+  const datosPreparados = () => {
+    let lista = transacciones.map(t => ({
+      id: t.id,
+      categoria: t.categoria,
+      descripcion: t.descripcion,
+      monto: t.monto,
+      tipo: t.tipo,
+      fecha: `${t.dia}/${t.mes}/${t.year}`
+    }));
 
-    const busquedaLimpia = searchText.trim().toLowerCase();
-    if (busquedaLimpia.length > 0) {
-      datosFiltrados = datosFiltrados.filter(item => 
-        item.categoria.toLowerCase().includes(busquedaLimpia) ||
-        item.descripcion.toLowerCase().includes(busquedaLimpia)
+    // Filtro por tipo
+    if (filtro !== 'Todos') {
+      lista = lista.filter(item => item.tipo === filtro);
+    }
+
+    // Búsqueda por categoría
+    if (searchText.trim().length > 0) {
+      const b = searchText.toLowerCase();
+      lista = lista.filter(item =>
+        item.categoria.toLowerCase().includes(b)
       );
     }
 
+    // Agrupar por fecha
     const grupos = {};
-    datosFiltrados.forEach(item => {
-      const claveFecha = item.fecha;
-      if (!grupos[claveFecha]) grupos[claveFecha] = [];
-      grupos[claveFecha].push(item);
+    lista.forEach(item => {
+      if (!grupos[item.fecha]) grupos[item.fecha] = [];
+      grupos[item.fecha].push(item);
     });
 
-    // Ordenar por fecha descendente
-    const fechasOrdenadas = Object.keys(grupos).sort((a, b) => {
-      const [dA, mA, yA] = a.split(' / ').map(Number);
-      const [dB, mB, yB] = b.split(' / ').map(Number);
-      const dateA = new Date(yA, mA - 1, dA);
-      const dateB = new Date(yB, mB - 1, dB);
-      return dateB - dateA;
-    });
-
-    return fechasOrdenadas.map(fecha => ({
+    return Object.keys(grupos).map(fecha => ({
       title: fecha,
-      data: grupos[fecha],
+      data: grupos[fecha]
     }));
   };
 
-const renderItem = ({ item }) => (
-  <View style={styles.item}>
-    <View style={styles.iconoCategoria}>
-      {item.categoria === 'Mascotas' && <Feather name="heart" size={24} color="#36504e"/> }
-      {item.categoria === 'Wifi' && <Feather name="wifi" size={24} color="#36504e"/> }
-      {item.categoria === 'Alimentos' && <Feather name="coffee" size={24} color="#36504e"/> }
-      {item.categoria === 'Compra' && <Feather name="shopping-bag" size={20} color="#36504e"/> }
-      {item.categoria === 'Devolución compra' && <Feather name="corner-up-left" size={24} color="#36504e"/> }
-    </View>
-    
-    <View style={styles.descripcionItem}>
-      <Text style={styles.categoria}>{item.categoria}</Text>
-      <Text style={styles.descripcion}>{item.descripcion}</Text>
-      <Text style={[styles.monto, { color: item.monto > 0 ? '#09a466ff' : '#bc0f03ff' }]}>{`$${item.monto}`}</Text>
-    </View>
+  // === ITEM DEL LISTADO ===
+  const renderItem = ({ item }) => (
+    <View style={styles.item}>
+      
+      <View style={styles.iconoCategoria}>
+        {item.categoria === 'Mascotas' && <Feather name="heart" size={24} color="#36504e"/> }
+        {item.categoria === 'Wifi' && <Feather name="wifi" size={24} color="#36504e"/> }
+        {item.categoria === 'Alimentos' && <Feather name="coffee" size={24} color="#36504e"/> }
+        {item.categoria === 'Compra' && <Feather name="shopping-bag" size={20} color="#36504e"/> }
+        {item.categoria === 'Devolución compra' && <Feather name="corner-up-left" size={24} color="#36504e"/> }
+      </View>
 
-    {/* Nuevos botones usando Button en lugar de TouchableOpacity */}
+      <View style={styles.descripcionItem}>
+        <Text style={styles.categoria}>{item.categoria}</Text>
+        <Text style={styles.desc}>{item.descripcion}</Text>
+        <Text style={styles.monto(item.monto)}>${item.monto}</Text>
+      </View>
+
+    {/* Aquí van tus botones personalizados */}
     <View style={styles.contBotonesItem}>
       <Button 
         color='green' 
         title='Edit' 
-        onPress={() => navigation.navigate('TransaccionesEditar', { item })} 
+        onPress={() => navigation.navigate('TransaccionesEditar', { id: item.id })}
       />
+
       <View style={{ width: 10 }} />
+
       <Button 
         color='#971108' 
         title='Elim' 
-        onPress={() => navigation.navigate('TransaccionesEliminar', { item })} 
+        onPress={() => navigation.navigate('TransaccionesEliminar', { id: item.id })}
       />
     </View>
-  </View>
-);
 
+    </View>
+  );
 
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
-      
+
+      {/* ------------------ HEADER ------------------ */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={()=> navigation.navigate('MenuDespegable')}>
-          <Feather name="menu" size={24} color="#33604E"  />
+        
+        <TouchableOpacity onPress={() => navigation.navigate('MenuDespegable')}>
+          <Feather name="menu" size={24} color="#33604E" />
         </TouchableOpacity>
+
         <View style={styles.searchBar}>
           <Feather name="search" size={18} color="#999" />
-          <TextInput 
-            placeholder="Buscar por categoría o descripción..." 
-            style={styles.searchInput} 
+          <TextInput
+            placeholder="Buscar por categoría..."
+            style={styles.searchInput}
             placeholderTextColor="#999"
             value={searchText}
             onChangeText={setSearchText}
           />
         </View>
-        <TouchableOpacity onPress={()=> navigation.navigate('Notificaciones')} >
+
+        <TouchableOpacity onPress={() => navigation.navigate('Notificaciones')}>
           <Feather name="bell" size={24} color="#33604E" />
         </TouchableOpacity>
-        <TouchableOpacity onPress={()=> navigation.navigate('Configuracion')}>
+
+        <TouchableOpacity onPress={() => navigation.navigate('Configuracion')}>
           <Feather name="settings" size={24} color="#33604E" />
         </TouchableOpacity>
+
       </View>
 
-      <View style={styles.fechasContainer}>
-        <TextInput
-          style={styles.fechaInput}
-          placeholder="Fecha inicio (YYYY-MM-DD)"
-          value={fechaInicio}
-          onChangeText={setFechaInicio}
-        />
-        <TextInput
-          style={styles.fechaInput}
-          placeholder="Fecha fin (YYYY-MM-DD)"
-          value={fechaFin}
-          onChangeText={setFechaFin}
-        />
-        <TouchableOpacity style={styles.botonFiltrar} onPress={cargarTransacciones}>
-          <Text style={{ color: 'white' }}>Filtrar</Text>
-        </TouchableOpacity>
-      </View>
-      
-      <View style={styles.contentContainer}>
-        <View style={styles.tabs}>
-          {['Todos', 'Ingreso', 'Gasto'].map(tab => (
-            <TouchableOpacity
-              key={tab}
-              style={[styles.tab, filtro === tab && styles.tabActivo]}
-              onPress={() => setFiltro(tab)}
-            >
-              <Text style={[styles.tabTexto, filtro === tab && styles.tabTextoActivo]}>{tab}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        <SectionList
-          style={styles.lista}
-          sections={prepararDatos()}
-          keyExtractor={(item) => item.id}
-          renderItem={renderItem}
-          renderSectionHeader={({ section: { title } }) => (
-            <Text style={styles.fechaTitulo}>{title}</Text>
-          )}
-        />
+      {/* ------------------ TABS ------------------ */}
+      <View style={styles.tabs}>
+        {['Todos', 'Ingreso', 'Gasto'].map(tab => (
+          <TouchableOpacity
+            key={tab}
+            style={[styles.tab, filtro === tab && styles.tabActivo]}
+            onPress={() => setFiltro(tab)}
+          >
+            <Text style={[styles.tabTexto, filtro === tab && styles.tabTextoActivo]}>
+              {tab}
+            </Text>
+          </TouchableOpacity>
+        ))}
       </View>
 
-      <TouchableOpacity style={styles.fab} onPress={()=> navigation.navigate('TransaccionesAgregar')}>
+      {/* ------------------ LISTA ------------------ */}
+      <SectionList
+        sections={datosPreparados()}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={renderItem}
+        renderSectionHeader={({ section: { title } }) => (
+          <Text style={styles.fechaTitulo}>{title}</Text>
+        )}
+        contentContainerStyle={{ paddingHorizontal: 16 }}
+      />
+
+      {/* BOTÓN FLOTANTE */}
+      <TouchableOpacity 
+        style={styles.fab} 
+        onPress={() => navigation.navigate('TransaccionesAgregar')}
+      >
         <Text style={styles.fabtext}>+</Text>
       </TouchableOpacity>
+
     </SafeAreaView>
   );
-};
+}
+
+// ===================== ESTILOS =====================
 
 const styles = StyleSheet.create({
-  fechasContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    marginBottom: 10,
-  },
-  fechaInput: {
-    flex: 1,
-    backgroundColor: '#fff',
-    padding: 8,
-    marginHorizontal: 5,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    fontSize: 12,
-  },
-  botonFiltrar: {
-    backgroundColor: '#36504e',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-  },
-  fab:{
-    position: 'absolute',
-    bottom:20,
-    right: 20,
-    backgroundColor: '#21f364ff',
-    width: 60,
-    height: 60,
-    borderRadius:30,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  fabtext:{
-    color: 'white',
-    fontSize: 38,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  container: {
-    flex: 1,
-    backgroundColor: "#FFFFFF",
-  },
+  container: { flex: 1, backgroundColor: "#FFFFFF" },
+
   header: {
     flexDirection: "row",
     alignItems: "center",
@@ -255,6 +206,7 @@ const styles = StyleSheet.create({
     gap: 12,
     paddingTop: 15 + (Platform.OS === "android" ? StatusBar.currentHeight : 0),
   },
+
   searchBar: {
     flex: 1,
     flexDirection: "row",
@@ -265,85 +217,85 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     gap: 8,
   },
+
   searchInput: {
     flex: 1,
     fontSize: 14,
     color: "#333",
   },
-  contentContainer: {
-    flex: 1,
-    backgroundColor: '#e7e7e7',
-    padding: 16,
-  },
-  contBotonesItem:{
-    flexDirection: 'row',
-  },
-  iconoCategoria:{
-      marginRight: 10,
-  },
-  descripcionItem: {
-    flex: 1,
-    marginRight: 10,
-  },
-  descripcion: {
-    fontSize: 13,
-    color: '#555',
-  },
-  fechaTitulo: {
-      fontSize: 15,
-      fontWeight: 'bold',
-      color: '#36504e',
-      marginVertical: 8,
-      backgroundColor: '#e7e7e7',
-      paddingTop: 5,
-  },
+
   tabs: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     backgroundColor: '#ffffff',
     borderRadius: 25,
     padding: 5,
-    marginBottom: 15,
+    margin: 16,
   },
+
   tab: {
     flex: 1,
     alignItems: 'center',
     paddingVertical: 8,
     borderRadius: 20,
   },
-  tabActivo: {
-    backgroundColor: '#36504e',
+  tabActivo: { backgroundColor: '#36504e' },
+  tabTexto: { color: '#333', fontWeight: '600' },
+  tabTextoActivo: { color: '#ffffff' },
+
+  fechaTitulo: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: '#36504e',
+    marginTop: 20,
+    marginBottom: 5,
   },
-  tabTexto: {
-    color: '#333',
-    fontWeight: '600',
-  },
-  tabTextoActivo: {
-    color: '#ffffff',
-  },
-  lista: {
-    marginTop: 10,
-    flex: 1,
-  },
+
+  lista: { flex: 1 },
+
   item: {
-    backgroundColor: '#ffffff',
+    backgroundColor: '#fff',
     flexDirection: 'row',
     alignItems: 'center',
     padding: 15,
     borderRadius: 12,
     marginBottom: 10,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-    elevation: 3,
+    elevation: 2
   },
-  categoria: {
+
+  iconoCategoria: { marginRight: 10 },
+
+  descripcionItem: { flex: 1 },
+
+  categoria: { fontSize: 16, fontWeight: 'bold', color: '#333' },
+  desc: { color: '#666', fontSize: 13, marginTop: 4 },
+
+  monto: (value) => ({
     fontSize: 16,
     fontWeight: 'bold',
+    marginTop: 8,
+    color: value >= 0 ? '#07b60f' : '#d9534f'
+  }),
+
+  contBotonesItem: { flexDirection: 'row', alignItems: 'center' },
+
+  iconBtn: { marginLeft: 10, padding: 6 },
+
+  fab: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    backgroundColor: '#21f364ff',
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  monto: {
-    fontSize: 16,
+  fabtext: {
+    color: 'white',
+    fontSize: 42,
     fontWeight: 'bold',
-  },
+    lineHeight: 46,
+  }
 });
